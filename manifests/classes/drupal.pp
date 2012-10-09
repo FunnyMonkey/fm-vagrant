@@ -1,7 +1,7 @@
 class drupal {
 	include apache
 	include mysql
-	class {'apache::mod::php': 
+	class {'apache::mod::php':
 		require => Exec['apt-update']
 	}
 	class { 'mysql::server':
@@ -9,7 +9,7 @@ class drupal {
 		require => Exec['apt-update']
         }
 
-	package { php5: 
+	package { php5:
 		ensure => installed,
 		require => Exec['apt-update']
 	}
@@ -17,7 +17,7 @@ class drupal {
 		php5-mysql: ensure => installed,
 		require => Exec['apt-update']
 	}
-	package { php5-imap: 
+	package { php5-imap:
 		ensure => installed,
 		require => Exec['apt-update']
 	}
@@ -37,7 +37,7 @@ class drupal {
 		php5-curl: ensure => installed,
 		require => Exec['apt-update']
 	}
-	package { php-apc: 
+	package { php-apc:
 		ensure => installed,
 		require => Exec['apt-update']
 	}
@@ -97,7 +97,7 @@ local_transport = error:local delivery is disabled",
 		}
 	}
 
-	package { drush: 
+	package { drush:
 		ensure => installed
 	}
 
@@ -162,28 +162,13 @@ local_transport = error:local delivery is disabled",
 	}
 
 	# install a database setting valid db permissions
-	# TODO: if we are going to be using this for building production VMs we will 
+	# TODO: if we are going to be using this for building production VMs we will
 	# want to tighten this up.
 	mysql::db { 'drupal':
 		user     => 'drupal',
 		password => 'drupal',
 		host     => 'localhost',
 		grant    => ['all'],
-	}
-
-	# Update settings
-	exec {'drupal settings config':
-		command => '/bin/echo "\
-			\$databases[\'default\'][\'default\'] = array( \
-				\'driver\' => \'mysql\', \
-				\'database\' => \'drupal\', \
-				\'username\' => \'drupal\', \
-				\'password\' => \'drupal\', \
-				\'host\' => \'localhost\', \
-				\'prefix\' => \'\') ;" >> sites/default/settings.php',
-		require => Exec['drupal settings'],
-		cwd => "/var/www/${fqdn}",
-		creates => '/var/tmp/drupal-settings-config'
 	}
 
 	file {"/var/www/${fqdn}/sites/default/settings.php":
