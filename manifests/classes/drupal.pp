@@ -173,7 +173,6 @@ local_transport = error:local delivery is disabled",
 
 	file {"/var/www/${fqdn}/sites/default/settings.php":
 		ensure => "present",
-		require => Exec['drupal settings config'],
 		mode => 0662,
 		group => 'www-data',
 		owner => 'www-data',
