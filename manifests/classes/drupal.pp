@@ -146,12 +146,14 @@ local_transport = error:local delivery is disabled",
 		creates => '/var/tmp/drupal-moved'
 	}
 
-	exec {'drupal settings':
-		command => '/bin/cp sites/default/default.settings.php sites/default/settings.php',
-		require => Exec['rename drupal'],
-		cwd => "/var/www/${fqdn}",
-		creates => '/var/tmp/drupal-settings'
-	}
+  file { "/var/www/${fqdn}/sites/default/settings.php":
+    ensure => present,
+    require => Exec['rename drupal'],
+    source => "/var/www/${fqdn}/sites/default/default.settings.php",
+    owner  => 'www-data',
+    group  => 'www-data',
+    mode   => 0644,
+  }
 
 	file {"/var/www/${fqdn}/sites/default/files":
 		ensure => "directory",
@@ -170,14 +172,6 @@ local_transport = error:local delivery is disabled",
 		host     => 'localhost',
 		grant    => ['all'],
 	}
-
-	file {"/var/www/${fqdn}/sites/default/settings.php":
-		ensure => "present",
-		mode => 0662,
-		group => 'www-data',
-		owner => 'www-data',
-	}
-
 
 	# setup the crontab
 	# TODO: the path for drush may be different on lucid
