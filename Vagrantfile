@@ -49,6 +49,7 @@ Vagrant::Config.run do |config|
   config.vm.provision :puppet, :module_path => "modules", :options => "--verbose --debug" do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "site.pp"
+    puppet.facter = { "domain" => "funnymonkey.com"}
   end
 
 end
