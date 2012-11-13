@@ -53,6 +53,11 @@ class drupal {
 		require => Exec['apt-update']
 	}
 
+	package {
+		ruby-compass: ensure => installed,
+		require => Exec['apt-update']
+	}
+
 	file { "/etc/postfix/main.cf":
 		ensure => "file",
 		replace => true,
