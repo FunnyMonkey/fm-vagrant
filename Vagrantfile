@@ -3,7 +3,7 @@
 
 Vagrant::Config.run do |config|
   # TODO: scripted provisioning
-  # The following values can be changed for scripting the building out of a 
+  # The following values can be changed for scripting the building out of a
   # test network or environment.  Here is a good suite of examples:
   # https://github.com/s0enke/ipcse11-vagrant-puppet-examples
   # config.vm.network
@@ -27,6 +27,7 @@ Vagrant::Config.run do |config|
   # to register the hostname in DNS for the office:
   # http://www.held.org.il/blog/2011/01/make-dhcp-auto-update-dynamic-dns/
   config.vm.network :bridged, :bridge => 'eth0'
+  config.vm.network :hostonly, "192.168.56.101"
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
@@ -46,7 +47,7 @@ Vagrant::Config.run do |config|
   # #               Managed by Puppet.\n"
   # # }
   #
-  config.vm.provision :puppet, :module_path => "modules", :options => "--verbose --debug" do |puppet|
+  config.vm.provision :puppet, :module_path => "modules", :options => "--verbose" do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "site.pp"
     puppet.facter = { "domain" => "funnymonkey.com"}
