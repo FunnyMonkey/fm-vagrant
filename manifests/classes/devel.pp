@@ -16,6 +16,12 @@ class devel {
 		require => Exec['apt-update']
 	}
 
+	package {
+		php5-xdebug:
+		ensure => installed,
+		require => Exec['apt-update']
+	}
+
 	file { "/etc/network/if-up.d/logininfo":
 		ensure => "file",
 		replace => true,
