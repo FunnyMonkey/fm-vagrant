@@ -1,1 +1,3 @@
 .vagrant
+Vagrantfile
+manifests/nodes.pp
