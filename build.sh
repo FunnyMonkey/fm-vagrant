@@ -6,8 +6,8 @@ VGBOX=precise64
 VGBOXURL=http://files.vagrantup.com/precise64.box
 VGBRIDGEIFACE=eth0
 VGUSER=`whoami`
-VGSSHKEY=`cut --delimiter=' ' -f 2  ~/.ssh/id_rsa.pub`
-VGSSHKEYTYPE=`cut --delimiter=' ' -f 1 ~/.ssh/id_rsa.pub`
+VGSSHKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
+VGSSHKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
 VGEMAIL="${VGUSER}@funnymonkey.com"
 VGUID=5001
 
