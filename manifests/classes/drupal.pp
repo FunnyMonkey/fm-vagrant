@@ -59,6 +59,15 @@ class drupal {
 		require => Exec['apt-update']
 	}
 
+	package { rubygems:
+		ensure => installed,
+		require => Exec['apt-update']
+	}
+
+	exec { '/usr/bin/gem install zurb-foundation':
+		require => Package['rubygems']
+	}
+
 	file { "/etc/postfix/main.cf":
 		ensure => "file",
 		replace => true,
