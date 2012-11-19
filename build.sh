@@ -27,7 +27,7 @@ read -p "box [${VGBOX}]: " vgrtbox
 vgrtbox=${vgrtbox:-$VGBOX}
 
 read -p "box URL [${VGBOXURL}]: " vgrtboxurl
-vgrtboxurl=${vgrtbox:-$VGBOXURL}
+vgrtboxurl=${vgrtboxurl:-$VGBOXURL}
 
 read -p "bridged network interface [${VGBRIDGEIFACE}]: " vgrtbridgeiface
 vgrtbridgeiface=${vgrtbridgeiface:-$VGBRIDGEIFACE}
