@@ -78,7 +78,7 @@ echo ""
 
 cat > manifests/nodes.pp <<EOF
 node "${vgrthostname}.${vgrtdomain}" {
-  include linux-common
+  include linux_common
   include drupal
   include devel
 
