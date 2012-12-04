@@ -24,4 +24,8 @@ local_transport = error:local delivery is disabled",
 	package { 'libxml-xpath-perl':
 		ensure => installed
 	}
+
+	package { 'unzip':
+		ensure => installed
+	}
 }
