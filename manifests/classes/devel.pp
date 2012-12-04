@@ -15,6 +15,10 @@ class devel {
 		ensure => installed,
 		require => Exec['apt-update']
 	}
+	package { git:
+		ensure => installed,
+		require => Exec['apt-update']
+	}
 
 	package {
 		php5-xdebug:
