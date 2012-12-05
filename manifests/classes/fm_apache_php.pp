@@ -3,44 +3,43 @@ class fm_apache_php {
 	include apache
 
 	class {'apache::mod::php':
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 
 	package { php5:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 	package { php5-mysql:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php5-imap:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php5-gd:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php5-dev:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php-pear:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php5-curl:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php-apc:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 	package { php5-cli:
 		ensure => installed,
-		require => Exec['apt-update']
+		require => Package["php5"]
 	}
 
 	#pecl install uploadprogress
