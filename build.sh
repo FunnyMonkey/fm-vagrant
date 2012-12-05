@@ -16,7 +16,7 @@ VGCPU=1
 VGUSER=`whoami`
 VGSSHKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
 VGSSHKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
-VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGODMAIN}"
+VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 # @todo add optional port 80 forwarding?
 #   config.vm.forward_port 80, 4567
