@@ -1,29 +1,23 @@
 class devel {
 	package { screen:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 	package { mailutils:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 	package { vim:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 	package { vim-puppet:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 	package { git:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 
 	package {
 		php5-xdebug:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 
 	file { "/etc/network/if-up.d/logininfo":

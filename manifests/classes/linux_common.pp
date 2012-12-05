@@ -1,15 +1,16 @@
 class linux_common {
 	exec { "apt-update":
-		command     => "/usr/bin/apt-get update"
+	    command => "/usr/bin/apt-get update"
 	}
+	# Require apt-update for every Package command
+	Exec["apt-update"] -> Package <| |>
 
 	package { make:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
+
 	package { postfix:
 		ensure => installed,
-		require => Exec['apt-update']
 	}
 
 	file { "/etc/postfix/main.cf":

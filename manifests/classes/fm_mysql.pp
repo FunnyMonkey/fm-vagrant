@@ -3,7 +3,6 @@ class fm_mysql {
 
 	class { 'mysql::server':
     config_hash => { 'root_password' => 'foo' },
-		require => Exec['apt-update']
   }
 
   # install a database setting valid db permissions
