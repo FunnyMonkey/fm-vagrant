@@ -1,21 +1,32 @@
 #!/bin/bash
 
-VGHOSTNAME=drupal-base-1
-VGDOMAIN=funnymonkey.com
-VGBOX=precise64
-VGBOXURL=http://files.vagrantup.com/precise64.box
-VGBRIDGEIFACE=eth0
+VGHOSTNAME='vagrant'
+VGDOMAIN='local'
+VGBOX='precise64'
+VGBOXURL='http://files.vagrantup.com/precise64.box'
+# @todo investigate if the following works on OSX
+# ip a | awk '/inet /&&!/ lo/{print $NF,$2}'
+VGBRIDGEIFACE='eth0'
+# @todo investigate if the following works on OSX
+# grep MemFree /proc/meminfo | awk '{ print int($2/1024) }'
+VGMEM=1024
+# @todo investigate if the following works on OSX
+# cat /proc/cpuinfo | grep processor | wc -l
+VGCPU=1
 VGUSER=`whoami`
 VGSSHKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
 VGSSHKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
-VGEMAIL="${VGUSER}@funnymonkey.com"
+VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGODMAIN}"
 VGUID=5001
+# @todo add optional port 80 forwarding?
+#   config.vm.forward_port 80, 4567
 
-echo "This script takes care of creating the necessary Vagrantfile and"
-echo "corresponding nodes.pp file necessary to create a new vagrant instance"
-echo ""
-echo "First we have a few details to determine"
-echo
+echo "
+********************************************************************************
+The defaults are generally a decent starting point. These values can be adjusted
+by editing 'Vagrantfile' or 'manifests/nodes.pp'
+********************************************************************************
+"
 
 read -p "hostname [${VGHOSTNAME}]: " vgrthostname
 vgrthostname=${vgrthostname:-$VGHOSTNAME}
@@ -31,6 +42,12 @@ vgrtboxurl=${vgrtboxurl:-$VGBOXURL}
 
 read -p "bridged network interface [${VGBRIDGEIFACE}]: " vgrtbridgeiface
 vgrtbridgeiface=${vgrtbridgeiface:-$VGBRIDGEIFACE}
+
+read -p "configured RAM (in megabytes) [${VGMEM}]: " vgrtmem
+vgrtmem=${vgrtmem:-$VGMEM}
+
+read -p "configured CPUs [${VGCPU}]: " vgrtcpu
+vgrtcpu=${vgrtcpu:-$VGCPU}
 
 echo ""
 echo "Writing Vagrantfile"
@@ -50,6 +67,8 @@ Vagrant::Config.run do |config|
       "fqdn" => "${vgrthostname}.${vgrtdomain}"
     }
   end
+  config.vm.customize ["modifyvm", :id, "--memory", "${vgrtmem}"]
+  config.vm.customize ["modifyvm", :id, "--cpus", "${vgrtcpu}"]
 end
 EOF
 
@@ -93,10 +112,25 @@ node "${vgrthostname}.${vgrtdomain}" {
 }
 EOF
 
-echo "#########################################################################"
-echo "You should now be ready to initialize the virtualbox"
-echo ""
-echo "This is done via 'vagrant up' after the box is running you can type"
-echo "vagrant ssh to ssh as the vagrant user. You should also be able to ssh in"
-echo "as the user created above but you must first determine the IP of the box"
-echo ""
+chmod 600 manifests/nodes.pp
+
+echo "
+********************************************************************************
+You should now be ready to initialize your vagrant instance
+
+This is done via
+
+      vagrant up
+
+Assuming the initialization process works okay
+
+      vagrant ssh
+
+You will then be connected to the vagrant server. To obtain the IP address
+the vagrant box obtained via the bridged network. You can type the
+following to obtain all active IP addresses.
+
+      ip a | awk '/inet /&&!/ lo/{print \$NF,\$2}'
+
+********************************************************************************
+"
