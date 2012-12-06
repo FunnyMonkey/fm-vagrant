@@ -109,7 +109,12 @@ node "${vgrthostname}.${vgrtdomain}" {
     key => "${vgrtsshkey}",
     type => "${vgrtsshkeytype}"
   }
+
+  info('##########################')
+  info("Your IP is $ipaddress_eth1")
+  info('##########################')
 }
+
 EOF
 
 chmod 600 manifests/nodes.pp
