@@ -3,17 +3,20 @@ class drupal {
 	include fm_apache_php
 	include fm_compass
 
+	# install drush, we use this method over the ubuntu package as that requires
+	# a drush self-update that prompts for a version. This method uses drush's
+	# official pear channel.
 	exec { '/usr/bin/pear channel-discover pear.drush.org && /usr/bin/pear install drush/drush':
 		require => Package['php-pear'],
 		creates => '/usr/bin/drush'
 	}
 
-	# create a directory
+	# create the main web directory parent
 	file { "/var/www":
 		ensure => "directory"
 	}
 
-	# Create a apache virtual host
+	# Create an apache virtual host
 	apache::vhost { $fqdn:
 		priority        => '10',
 		vhost_name      => $fqdn,
@@ -44,6 +47,8 @@ class drupal {
 		name => $hostname,
 		ensure => absent
 	}
+
+	# set the aliased virtual host to the routable IP we have (assumes eth1 is outbound)
 	host { '/etc/hosts drupal':
 		ip => $ipaddress_eth1,
 		ensure => present,
