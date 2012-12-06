@@ -19,7 +19,7 @@ class drupal {
 		vhost_name      => $fqdn,
 		port            => '80',
 		docroot         => "/var/www/${fqdn}/",
-		serveradmin     => 'admin@funnymonkey.com',
+		serveradmin     => "admin@${fqdn}",
 		serveraliases   => ["www.${fqdn}",],
 		notify => Exec['reload apache']
 	}
