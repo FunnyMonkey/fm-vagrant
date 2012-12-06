@@ -46,18 +46,22 @@ class fm_apache_php {
 	exec { 'pecl install uploadprogress':
 		command     => "/usr/bin/pecl install uploadprogress",
 		require => Package['php-pear'],
-		creates => '/var/tmp/pecl-install-uploadprogress'
+		creates => '/usr/lib/php5/20090626/uploadprogress.so'
 	}
 
-	exec { 'enable uploadprogress':
-		command => '/bin/echo "extension=uploadprogress.so" > /etc/php5/apache2/conf.d/uploadprogress.ini',
+	file { '/etc/php5/apache2/conf.d/uploadprogress.ini':
+		replace => "no",
+		ensure 	=> "present",
+		content => "extension=uploadprogress.so\n",
+		mode 		=> 644,
 		require => Class['apache::mod::php'],
-		creates => '/var/tmp/enable-uploadprogress'
 	}
 
-	exec { 'increase apc shm':
-		command => "/bin/echo 'apc.shm_size=\"64M\"' >> /etc/php5/conf.d/apc.ini",
-		require => Package['php-apc']
+	file { '/etc/php5/conf.d/apc.ini':
+		replace => "no",
+		ensure => "present",
+		content => "apc.shm_size=\"64M\"",
+		require => Package['php-apc'],
 	}
 
 }

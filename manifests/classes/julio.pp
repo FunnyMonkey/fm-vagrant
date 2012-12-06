@@ -1,3 +1,0 @@
-class julio {
-	include drupal
-}
