@@ -50,7 +50,6 @@ class fm_apache_php {
 	}
 
 	file { '/etc/php5/apache2/conf.d/uploadprogress.ini':
-		replace => "no",
 		ensure 	=> "present",
 		content => "extension=uploadprogress.so\n",
 		mode 		=> 644,
@@ -58,7 +57,6 @@ class fm_apache_php {
 	}
 
 	file { '/etc/php5/conf.d/apc.ini':
-		replace => "no",
 		ensure => "present",
 		content => "apc.shm_size=\"64M\"",
 		require => Package['php-apc'],
