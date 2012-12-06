@@ -6,6 +6,8 @@ class fm_apache_php {
 		require => Package["php5"]
 	}
 
+	apache::loadmodule{'rewrite':}
+
 	package { php5:
 		ensure => installed,
 	}

@@ -22,6 +22,7 @@ class drupal {
 		vhost_name      => $fqdn,
 		port            => '80',
 		docroot         => "/var/www/${fqdn}/",
+    override        => 'All',
 		serveradmin     => "admin@${fqdn}",
 		serveraliases   => ["www.${fqdn}",],
 		notify => Exec['reload apache']
