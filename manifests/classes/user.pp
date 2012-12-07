@@ -1,6 +1,6 @@
 # http://itand.me/using-puppet-to-manage-users-passwords-and-ss
 
-define add_user ($email, $uid) {
+define add_user ($email, $uid, $password) {
   $username = $title
 
   user { $username:
@@ -32,10 +32,12 @@ define add_user ($email, $uid) {
     require => File["/home/$username/"]
   }
 
-  exec { "sudo passwd $username <<EOF
-!$username!
-!$username!
-EOF":
+  # Set user password except if they already have a password entry
+  exec { "set $username password":
+    command         => "sudo passwd $username <<EOF
+$password
+$password
+EOF",
     path            => "/bin:/usr/bin",
     refreshonly     => true,
     subscribe       => User[$username],
@@ -52,17 +54,32 @@ EOF":
   }
 }
 
-
-define add_ssh_key( $key, $type ) {
+define add_ssh_key( $pubkey, $type, $key ) {
   $username       = $title
 
-  ssh_authorized_key{ "${username}_${key}":
+  ssh_authorized_key{ "${username}_${pubkey}":
     ensure  => present,
-    key     => $key,
+    key     => $pubkey,
     type    => $type,
     user    => $username,
     require => File["/home/$username/.ssh/authorized_keys"]
-
   }
 
+  file {"/home/$username/.ssh/id_rsa.pub":
+    ensure  => present,
+    content => "$type $pubkey",
+    owner   => $username,
+    group   => $username,
+    mode    => 600,
+    require => File["/home/$username/.ssh"]
+  }
+
+  file {"/home/$username/.ssh/id_rsa":
+    ensure  => present,
+    content => $key,
+    owner   => $username,
+    group   => $username,
+    mode    => 600,
+    require => File["/home/$username/.ssh"]
+  }
 }

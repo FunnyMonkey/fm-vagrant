@@ -1,4 +1,15 @@
 #!/bin/bash
+if [ -e Vagrantfile ]
+  then
+    echo "Vagrantfile exists"
+    echo "If you want a new environment first run vagrant destroy to ensure everything is cleaned up."
+    echo ""
+    echo "Then run ./clean.sh to clean everything out."
+    echo ""
+    echo "** THE ABOVE STEPS WILL DELETE EVERYTHING SO MAKE SURE ALL WORK IS COMMITTED AND PUSHED **"
+    exit
+fi
+
 
 # Vagrantfile variables
 VGHOSTNAME='vagrant'
@@ -6,8 +17,10 @@ VGDOMAIN='local'
 
 # nodes.pp variables
 VGUSER=`whoami`
-VGSSHKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
-VGSSHKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
+VGPASS=\!${VGUSER}\!
+VGSSHPUBKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
+VGSSHPUBKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
+VGSSHKEY=`cat ~/.ssh/id_rsa`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 
@@ -56,21 +69,33 @@ echo ""
 read -p "user [${VGUSER}]: " vgrtuser
 vgrtuser=${vgrtuser:-$VGUSER}
 
-read -p "user [${VGEMAIL}]: " vgrtemail
+read -p "email [${VGEMAIL}]: " vgrtemail
 vgrtemail=${vgrtemail:-$VGEMAIL}
+
+read -s -p "password (not echoed) [${VGPASS}]: " vgrtpass
+vgrtpass=${vgrtpass:-$VGPASS}
+echo
 
 read -p "uid [${VGUID}]: " vgrtuid
 vgrtuid=${vgrtuid:-$VGUID}
 
-read -p "ssh key [${VGSSHKEY}]: " vgrtsshkey
-vgrtsshkey=${vgrtsshkey:-$VGSSHKEY}
+read -p "ssh pub key [${VGSSHPUBKEY}]: " vgrtsshpubkey
+vgrtsshpubkey=${vgrtsshpubkey:-$VGSSHPUBKEY}
 
-read -p "ssh key type [${VGSSHKEYTYPE}]: " vgrtsshkeytype
-vgrtsshkeytype=${vgrtsshkeytype:-$VGSSHKEYTYPE}
+read -p "ssh pub key type [${VGSSHPUBKEYTYPE}]: " vgrtsshpubkeytype
+vgrtsshpubkeytype=${vgrtsshpubkeytype:-$VGSSHPUBKEYTYPE}
+
+read -s -p "ssh key (not echoed) [(using key in ~/.ssh/id_rsa)]: " vgrtsshkey
+vgrtsshkey=${vgrtsshkey:-$VGSSHKEY}
+echo
 
 echo ""
 echo "Writing manifests/nodes.pp file"
 echo ""
+
+# create the file first and restrict the settings to avoid exposing ssh keys
+touch manifests/nodes.pp
+chmod 600 manifests/nodes.pp
 
 cat > manifests/nodes.pp <<EOF
 node "${vgrthostname}.${vgrtdomain}" {
@@ -79,23 +104,23 @@ node "${vgrthostname}.${vgrtdomain}" {
   include devel
 
   add_user { ${vgrtuser}:
-    email    => "${vgrtemail}",
+    email    => '${vgrtemail}',
     uid      => $vgrtuid,
+    password => '${vgrtpass}',
   }
   add_ssh_key { ${vgrtuser}:
-    key => "${vgrtsshkey}",
-    type => "${vgrtsshkeytype}"
+    pubkey => "${vgrtsshpubkey}",
+    type => "${vgrtsshpubkeytype}",
+    key => "${vgrtsshkey}"
   }
 
   info('##########################')
-  info("eth0 address: $ipaddress_eth0")
-  info("eth1 address: $ipaddress_eth1")
+  info("eth0 address: \$ipaddress_eth0")
+  info("eth1 address: \$ipaddress_eth1")
   info('##########################')
 }
 
 EOF
-
-chmod 600 manifests/nodes.pp
 
 echo "
 ********************************************************************************
@@ -105,19 +130,20 @@ This is done via
 
       vagrant up
 
-Assuming the initialization process works okay you should now be able to use the
-virtual machine.
+Assuming the initialization process works okay you should now then be able to
+use the virtual machine.
 
 When you run vagrant up you should see some informational output of what
 addresses the various network interfaces received. It should look like;
-info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
-info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15
-info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
-info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
+
+      info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
+      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15
+      info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
+      info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
 
 If not you can;
       vagrant ssh
-      ip a | awk '/inet /&&!/ lo/{print $NF,$2}'
+      ip a | awk '/inet /&&!/ lo/{print \$NF,\$2}'
 
 You should then see a list of ip addresses.
 ********************************************************************************
