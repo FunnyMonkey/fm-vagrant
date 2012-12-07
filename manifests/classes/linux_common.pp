@@ -18,7 +18,7 @@ class linux_common {
 		replace => true,
 		content => "myhostname = ${fqdn}
 inet_interfaces = loopback-only
-local_transport = error:local delivery is disabled",
+default_transport = error:postfix configured to not route email",
 		require => Package['postfix']
 	}
 
