@@ -1,4 +1,5 @@
 ## Quickstart
+
 1. Grab this code
 2. cd into the directory the code is at
 3. run ./build.sh the primary things this does is to let you pick an arbitrary
@@ -19,8 +20,12 @@ where HOSTNAME and DOMAIN are what you provided in step 3.
 This is well documented at http://vagrantup.com/v1/docs/vagrantfile.html but you
 should review the order precedence of the Vagrantfile. Generally speaking you
 will want to make a few host specific adjustments. Most importantly you will
-make adjustments so that your machine has an outbound connection. Below is what
-I use;
+make adjustments so that your machine has an outbound connection. This is
+typically done with a bridged network interface, but you may need to adjust to
+NAT depending on your network configuration. Note that bridged mode will
+generally fail on large public networks such as those found in airports and
+hotels. Below is what I have in ~/.vagrant.d/Vagrantfile
+
     Vagrant::Config.run do |config|
       config.vm.customize ["modifyvm", :id, "--memory", "2048"]
       config.vm.customize ["modifyvm", :id, "--cpus", "4"]
@@ -38,7 +43,7 @@ http://vagrantup.com/
 http://puppetlabs.com/
 
 ## Debugging
-Notes if the vagrant box fails to book and hangs at;
+If the vagrant box fails to boot and hangs at;
     [default] Waiting for VM to boot. This can take a few minutes.
 
 This seems to trigger randomly for me and I am unsure of the cause. Lots of
