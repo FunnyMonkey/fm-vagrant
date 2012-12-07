@@ -1,4 +1,0 @@
-myorigin = $mydomain
-relayhost = $mydomain
-inet_interfaces = loopback-only
-local_transport = error:local delivery is disabled
