@@ -1,11 +1,37 @@
 ## Quickstart
 1. Grab this code
 2. cd into the directory the code is at
-3. run ./build.sh
-4. Answer the questions the main parameter of note is the network interface. for
-all other options the defaults should be acceptable.
-5. Once that happens run vagrant up
-6. If all is successful your vagrant machine should be booted and configured.
+3. run ./build.sh the primary things this does is to let you pick an arbitrary
+hostname. This is really just a convenience so that when you login to the server
+the hostname is reflected. That is your prompt will be;
+    USERNAME@HOSTNAME
+I find this helpful to avoid ambiguity. Additionaly the virtualbox name if you
+fire up the Virtual Box GUI will reflect the hostname you chose. This process
+also sets up manifets/nodes.pp to match the selected hostname and grabs your
+public ssh key.
+5. run 'vagrant up' This creates the virtual machine and then kicks off puppet
+configuration that will get the rest of the steps.
+6. You can now begin working with your webserver. The webroot is setup at;
+    /var/www/HOSTNAME.DOMAIN
+where HOSTNAME and DOMAIN are what you provided in step 3.
+
+## Host specific settings
+This is well documented at http://vagrantup.com/v1/docs/vagrantfile.html but you
+should review the order precedence of the Vagrantfile. Generally speaking you
+will want to make a few host specific adjustments. Most importantly you will
+make adjustments so that your machine has an outbound connection. Below is what
+I use;
+    Vagrant::Config.run do |config|
+      config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+      config.vm.customize ["modifyvm", :id, "--cpus", "4"]
+      config.vm.network :bridged, :bridge => 'eth0'
+    end
+
+This sets an active bridged network interface up over eth0 (my active interface)
+and then also bumps the virtual machine memory to 2GB and the number of CPUs to
+4. The virtual box documentaiton on VBoxManage contains more details on
+additional parameters that are available. Note that not all are configurable via
+vagrant.
 
 ## Resources
 http://vagrantup.com/

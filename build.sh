@@ -1,30 +1,25 @@
 #!/bin/bash
 
+# Vagrantfile variables
 VGHOSTNAME='vagrant'
 VGDOMAIN='local'
-VGBOX='precise64'
-VGBOXURL='http://files.vagrantup.com/precise64.box'
-# @todo investigate if the following works on OSX
-# ip a | awk '/inet /&&!/ lo/{print $NF,$2}'
-VGBRIDGEIFACE='eth0'
-# @todo investigate if the following works on OSX
-# grep MemFree /proc/meminfo | awk '{ print int($2/1024) }'
-VGMEM=1024
-# @todo investigate if the following works on OSX
-# cat /proc/cpuinfo | grep processor | wc -l
-VGCPU=1
+
+# nodes.pp variables
 VGUSER=`whoami`
 VGSSHKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
 VGSSHKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
-# @todo add optional port 80 forwarding?
-#   config.vm.forward_port 80, 4567
 
 echo "
 ********************************************************************************
-The defaults are generally a decent starting point. These values can be adjusted
-by editing 'Vagrantfile' or 'manifests/nodes.pp'
+Host specific settings should be managed via a custom Vagrantfile located in the
+appropriate location.
+
+See http://vagrantup.com/v1/docs/vagrantfile.html
+
+Generally this will be ~/vagrant.d/Vagrantfile see README.md for more details on
+options you may want to set.
 ********************************************************************************
 "
 
@@ -34,21 +29,6 @@ vgrthostname=${vgrthostname:-$VGHOSTNAME}
 read -p "domain [${VGDOMAIN}]: " vgrtdomain
 vgrtdomain=${vgrtdomain:-$VGDOMAIN}
 
-read -p "box [${VGBOX}]: " vgrtbox
-vgrtbox=${vgrtbox:-$VGBOX}
-
-read -p "box URL [${VGBOXURL}]: " vgrtboxurl
-vgrtboxurl=${vgrtboxurl:-$VGBOXURL}
-
-read -p "bridged network interface [${VGBRIDGEIFACE}]: " vgrtbridgeiface
-vgrtbridgeiface=${vgrtbridgeiface:-$VGBRIDGEIFACE}
-
-read -p "configured RAM (in megabytes) [${VGMEM}]: " vgrtmem
-vgrtmem=${vgrtmem:-$VGMEM}
-
-read -p "configured CPUs [${VGCPU}]: " vgrtcpu
-vgrtcpu=${vgrtcpu:-$VGCPU}
-
 echo ""
 echo "Writing Vagrantfile"
 echo ""
@@ -56,9 +36,8 @@ echo ""
 cat > Vagrantfile <<EOF
 Vagrant::Config.run do |config|
   config.vm.host_name = '${vgrthostname}'
-  config.vm.box = "${vgrtbox}"
-  config.vm.box_url = "${vgrtboxurl}"
-  config.vm.network :bridged, :bridge => '${vgrtbridgeiface}'
+  config.vm.box = "precise64"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
   config.vm.provision :puppet, :module_path => "modules", :options => "--verbose" do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "site.pp"
@@ -67,8 +46,6 @@ Vagrant::Config.run do |config|
       "fqdn" => "${vgrthostname}.${vgrtdomain}"
     }
   end
-  config.vm.customize ["modifyvm", :id, "--memory", "${vgrtmem}"]
-  config.vm.customize ["modifyvm", :id, "--cpus", "${vgrtcpu}"]
 end
 EOF
 
@@ -111,7 +88,8 @@ node "${vgrthostname}.${vgrtdomain}" {
   }
 
   info('##########################')
-  info("Your IP is $ipaddress_eth1")
+  info("eth0 address: $ipaddress_eth0")
+  info("eth1 address: $ipaddress_eth1")
   info('##########################')
 }
 
@@ -127,15 +105,20 @@ This is done via
 
       vagrant up
 
-Assuming the initialization process works okay
+Assuming the initialization process works okay you should now be able to use the
+virtual machine.
 
+When you run vagrant up you should see some informational output of what
+addresses the various network interfaces received. It should look like;
+info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
+info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15
+info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
+info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
+
+If not you can;
       vagrant ssh
+      ip a | awk '/inet /&&!/ lo/{print $NF,$2}'
 
-You will then be connected to the vagrant server. To obtain the IP address
-the vagrant box obtained via the bridged network. You can type the
-following to obtain all active IP addresses.
-
-      ip a | awk '/inet /&&!/ lo/{print \$NF,\$2}'
-
+You should then see a list of ip addresses.
 ********************************************************************************
 "
