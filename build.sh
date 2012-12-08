@@ -114,10 +114,10 @@ node "${vgrthostname}.${vgrtdomain}" {
     key => "${vgrtsshkey}"
   }
 
-  info('##########################')
+  info('##############################################')
   info("eth0 address: \$ipaddress_eth0")
   info("eth1 address: \$ipaddress_eth1")
-  info('##########################')
+  info('##############################################')
 }
 
 EOF
