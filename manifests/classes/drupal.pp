@@ -51,9 +51,11 @@ class drupal {
 		ensure => absent
 	}
 
-	# set the aliased virtual host to the routable IP we have (assumes eth1 is outbound)
+	# set the aliased virtual host to the first network interface. vagrant sets this
+	# If you need this externally accessible ensure you have a working setup on
+	# eth1 (via bridged networking and change ip to $ipaddress_eth1)
 	host { '/etc/hosts drupal':
-		ip => $ipaddress_eth1,
+		ip => $ipaddress_eth0,
 		ensure => present,
 		name => $fqdn,
 		host_aliases => ["www.${fqdn}", $hostname],

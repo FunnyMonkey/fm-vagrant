@@ -23,6 +23,7 @@ VGSSHPUBKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
 VGSSHKEY=`cat ~/.ssh/id_rsa`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
+VGGITCONFIG=`cat ~/.gitconfig`
 
 echo "
 ********************************************************************************
@@ -89,6 +90,9 @@ read -s -p "ssh key (not echoed) [(using key in ~/.ssh/id_rsa)]: " vgrtsshkey
 vgrtsshkey=${vgrtsshkey:-$VGSSHKEY}
 echo
 
+read -p "gitconfig (not echoed) [(using ~/.gitconfig)]: " vgrtgitconfig
+vgrtgitconfig=${vgrtgitconfig:-$VGGITCONFIG}
+
 echo ""
 echo "Writing manifests/nodes.pp file"
 echo ""
@@ -114,8 +118,17 @@ node "${vgrthostname}.${vgrtdomain}" {
     key => "${vgrtsshkey}"
   }
 
+  file {"/home/$username/.gitconfig":
+    ensure  => present,
+    content => "${vgrtgitconfig}",
+    owner   => ${vgrtuser},
+    group   => ${vgrtuser},
+    mode    => 600,
+    require => File["/home/${vgrtuser}"]
+  }
+
   info('##############################################')
-  info("eth0 address: \$ipaddress_eth0")
+  info("eth0 address: \$ipaddress_eth0 (use this for web)")
   info("eth1 address: \$ipaddress_eth1")
   info('##############################################')
 }
@@ -137,7 +150,7 @@ When you run vagrant up you should see some informational output of what
 addresses the various network interfaces received. It should look like;
 
       info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
-      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15
+      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15 (use this for web)
       info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
       info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
 
