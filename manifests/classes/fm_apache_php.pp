@@ -43,6 +43,10 @@ class fm_apache_php {
 		ensure => installed,
 		require => Package["php5"]
 	}
+	package { php5-common:
+		ensure => installed,
+		require => Package["php5"]
+	}
 
 	#pecl install uploadprogress
 	exec { 'pecl install uploadprogress':
