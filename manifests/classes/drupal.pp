@@ -34,7 +34,8 @@ class drupal {
 	cron { drupal:
 		command => "/usr/bin/drush -r ${fqdn} cron >/dev/null",
 		user    => www-data,
-		minute  => 0
+		minute  => 0,
+		require => Exec['install drush']
 	}
 
 	# reload apache
