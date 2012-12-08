@@ -46,10 +46,12 @@ http://puppetlabs.com/
 If the vagrant box fails to boot and hangs at;
     [default] Waiting for VM to boot. This can take a few minutes.
 
-This seems to trigger randomly for me and I am unsure of the cause. Lots of
-vagrant issues point to this halting as a network DHCP issue, but I have
-verified that this is actually caused by the boot process halting on the GRUB
-boot selection menu with no timeout. This may be an issue with the precise64.box
+This seems to trigger when adjusting puppet files if puppet starts but does not
+successfully finish due to syntax errors or changing files during runtime it
+*seems* to cause the VM to hang-up. Searching for solutions points to halting at
+this stage as a network DHCP issue, but I have verified that this is actually
+caused by the boot process halting on the GRUB boot selection menu with default
+timeout selection.
 
 If this happens you will need to get the machine hash stored in .vagrant it will
 be something like the following
