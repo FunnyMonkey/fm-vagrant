@@ -6,7 +6,8 @@ class drupal {
 	# install drush, we use this method over the ubuntu package as that requires
 	# a drush self-update that prompts for a version. This method uses drush's
 	# official pear channel.
-	exec { '/usr/bin/pear channel-discover pear.drush.org && /usr/bin/pear install drush/drush':
+	exec { 'install drush':
+		command => '/usr/bin/pear channel-discover pear.drush.org && /usr/bin/pear install drush/drush',
 		require => Package['php-pear'],
 		creates => '/usr/bin/drush'
 	}
