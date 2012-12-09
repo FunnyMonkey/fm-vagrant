@@ -1,16 +1,4 @@
 #!/bin/bash
-if [ -e Vagrantfile ]
-  then
-    echo "Vagrantfile exists"
-    echo "If you want a new environment first run vagrant destroy to ensure everything is cleaned up."
-    echo ""
-    echo "Then run ./clean.sh to clean everything out."
-    echo ""
-    echo "** THE ABOVE STEPS WILL DELETE EVERYTHING SO MAKE SURE ALL WORK IS COMMITTED AND PUSHED **"
-    exit
-fi
-
-
 # Vagrantfile variables
 VGHOSTNAME='vagrant'
 VGDOMAIN='local'
@@ -24,6 +12,18 @@ VGSSHKEY=`cat ~/.ssh/id_rsa`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 VGGITCONFIG=`cat ~/.gitconfig`
+
+# Check to make sure we will not clobber an existing vm config.
+if [ -e Vagrantfile ]
+  then
+    echo "Vagrantfile exists"
+    echo "If you want a new environment first run vagrant destroy to ensure everything is cleaned up."
+    echo ""
+    echo "Then run ./clean.sh to clean everything out."
+    echo ""
+    echo "** THE ABOVE STEPS WILL DELETE EVERYTHING SO MAKE SURE ALL WORK IS COMMITTED AND PUSHED **"
+    exit
+fi
 
 echo "
 ********************************************************************************
@@ -128,7 +128,7 @@ node "${vgrthostname}.${vgrtdomain}" {
   }
 
   info('##############################################')
-  info("eth0 address: \$ipaddress_eth0 (use this for web)")
+  info("eth0 address: \$ipaddress_eth0 (local only)")
   info("eth1 address: \$ipaddress_eth1")
   info('##############################################')
 }
@@ -150,7 +150,7 @@ When you run vagrant up you should see some informational output of what
 addresses the various network interfaces received. It should look like;
 
       info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
-      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15 (use this for web)
+      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15 (local only)
       info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
       info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
 
