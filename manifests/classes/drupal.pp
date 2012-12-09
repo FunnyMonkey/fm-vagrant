@@ -20,7 +20,7 @@ class drupal {
 	# Create an apache virtual host
 	apache::vhost { $fqdn:
 		priority        => '10',
-		vhost_name      => $fqdn,
+		vhost_name      => '*',
 		port            => '80',
 		docroot         => "/var/www/${fqdn}/",
     override        => 'All',
