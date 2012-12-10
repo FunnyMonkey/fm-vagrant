@@ -8,8 +8,13 @@ class drupal {
 	# official pear channel.
 	exec { 'install drush':
 		command => '/usr/bin/pear channel-discover pear.drush.org && /usr/bin/pear install drush/drush',
-		require => Package['php-pear'],
+		require => Package['php-console-table'],
 		creates => '/usr/bin/drush'
+	}
+
+	package { 'php-console-table':
+		ensure => installed,
+		require => Package['php-pear']
 	}
 
 	# create the main web directory parent
