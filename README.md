@@ -44,7 +44,7 @@ http://puppetlabs.com/
 
 ## Debugging
 If the vagrant box fails to boot and hangs at;
-    [default] Waiting for VM to boot. This can take a few minutes.
+    "[default] Waiting for VM to boot. This can take a few minutes."
 
 This seems to trigger when adjusting puppet files if puppet starts but does not
 successfully finish due to syntax errors or changing files during runtime it
