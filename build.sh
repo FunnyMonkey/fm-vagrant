@@ -118,7 +118,7 @@ node "${vgrthostname}.${vgrtdomain}" {
     key => "${vgrtsshkey}"
   }
 
-  file {"/home/$username/.gitconfig":
+  file {"/home/${vgrtuser}/.gitconfig":
     ensure  => present,
     content => "${vgrtgitconfig}",
     owner   => ${vgrtuser},
