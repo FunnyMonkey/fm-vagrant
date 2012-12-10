@@ -1,15 +1,15 @@
 ## Quickstart
 
-1. Grab this code
-2. cd into the directory the code is at
+1. Grab this code: git clone git@github.com:FunnyMonkey/fm-vagrant.git
+2. cd into the directory the code is at: cd fm-vagrant
 3. run ./build.sh the primary things this does is to let you pick an arbitrary
 hostname. This is really just a convenience so that when you login to the server
 the hostname is reflected. That is your prompt will be;
     USERNAME@HOSTNAME
 I find this helpful to avoid ambiguity. Additionaly the virtualbox name if you
 fire up the Virtual Box GUI will reflect the hostname you chose. This process
-also sets up manifets/nodes.pp to match the selected hostname and grabs your
-public ssh key.
+also sets up manifets/nodes.pp to match the selected hostname and grabs your 
+ssh keys and git configuration (~/.gitconfig).
 5. run 'vagrant up' This creates the virtual machine and then kicks off puppet
 configuration that will get the rest of the steps.
 6. You can now begin working with your webserver. The webroot is setup at;
