@@ -12,6 +12,11 @@ VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 VGGITCONFIG=`cat ~/.gitconfig`
 
+vgrtuid=${VGUID}
+vgrtsshpubkey=${VGSSHPUBKEY}
+vgrtsshpubkeytype=${VGSSHPUBKEYTYPE}
+vgrtgitconfig=${VGGITCONFIG}
+
 # Check to make sure we will not clobber an existing vm config.
 if [ -e Vagrantfile ]
   then
@@ -26,13 +31,9 @@ fi
 
 echo "
 ********************************************************************************
-Host specific settings should be managed via a custom Vagrantfile located in the
-appropriate location.
-
-See http://vagrantup.com/v1/docs/vagrantfile.html
-
-Generally this will be ~/vagrant.d/Vagrantfile see README.md for more details on
-options you may want to set.
+First we will ask you a few questions to identify this host and setup a default
+user account to login to machine as. Defaults are enclosed in single square
+brackets, pressing enter will choose the default setting.
 ********************************************************************************
 "
 
@@ -64,7 +65,7 @@ end
 EOF
 
 echo ""
-echo "Now preparing virtual box configuration"
+echo "Continuing with user account questions"
 echo ""
 
 read -p "user [${VGUSER}]: " vgrtuser
@@ -76,18 +77,6 @@ vgrtemail=${vgrtemail:-$VGEMAIL}
 read -s -p "password (not echoed) [${VGPASS}]: " vgrtpass
 vgrtpass=${vgrtpass:-$VGPASS}
 echo
-
-read -p "uid [${VGUID}]: " vgrtuid
-vgrtuid=${vgrtuid:-$VGUID}
-
-read -p "ssh pub key [${VGSSHPUBKEY}]: " vgrtsshpubkey
-vgrtsshpubkey=${vgrtsshpubkey:-$VGSSHPUBKEY}
-
-read -p "ssh pub key type [${VGSSHPUBKEYTYPE}]: " vgrtsshpubkeytype
-vgrtsshpubkeytype=${vgrtsshpubkeytype:-$VGSSHPUBKEYTYPE}
-
-read -p "gitconfig (not echoed) [(using ~/.gitconfig)]: " vgrtgitconfig
-vgrtgitconfig=${vgrtgitconfig:-$VGGITCONFIG}
 
 echo ""
 echo "Writing manifests/nodes.pp file"
@@ -121,11 +110,6 @@ node "${vgrthostname}.${vgrtdomain}" {
     mode    => 600,
     require => File["/home/${vgrtuser}"]
   }
-
-  info('##############################################')
-  info("eth0 address: \$ipaddress_eth0 (local only)")
-  info("eth1 address: \$ipaddress_eth1")
-  info('##############################################')
 }
 
 EOF
@@ -138,21 +122,10 @@ This is done via
 
       vagrant up
 
-Assuming the initialization process works okay you should now then be able to
-use the virtual machine.
+Assuming that this did not encounter any port collisions you should be able to
+ssh into using the following
 
-When you run vagrant up you should see some informational output of what
-addresses the various network interfaces received. It should look like;
+      ssh USERNAME@127.0.0.1 -p 2222
 
-      info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
-      info: Scope(Node[HOSTNAME.DOMAIN]): eth0 address: 10.0.2.15 (local only)
-      info: Scope(Node[HOSTNAME.DOMAIN]): eth1 address: 192.168.1.101
-      info: Scope(Node[HOSTNAME.DOMAIN]): ##########################
-
-If not you can;
-      vagrant ssh
-      ip a | awk '/inet /&&!/ lo/{print \$NF,\$2}'
-
-You should then see a list of ip addresses.
 ********************************************************************************
 "
