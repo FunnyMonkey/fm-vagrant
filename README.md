@@ -8,7 +8,7 @@ the hostname is reflected. That is your prompt will be;
     USERNAME@HOSTNAME
 I find this helpful to avoid ambiguity. Additionaly the virtualbox name if you
 fire up the Virtual Box GUI will reflect the hostname you chose. This process
-also sets up manifets/nodes.pp to match the selected hostname and grabs your 
+also sets up manifets/nodes.pp to match the selected hostname and grabs your
 ssh keys and git configuration (~/.gitconfig).
 5. run 'vagrant up' This creates the virtual machine and then kicks off puppet
 configuration that will get the rest of the steps.
@@ -37,6 +37,20 @@ and then also bumps the virtual machine memory to 2GB and the number of CPUs to
 4. The virtual box documentaiton on VBoxManage contains more details on
 additional parameters that are available. Note that not all are configurable via
 vagrant.
+
+### SSH Keys
+
+Rather than propogate private keys to the virtual machine, which is a *bad* *insecure* practice, You should set up [ssh agent forwarding]https://help.github.com/articles/using-ssh-agent-forwarding instead. The vagrant box that is deployed will allow ssh key forwardin from your client so.
+
+Adding the following to my .ssh/config works when ssh'ing via the port forward of 2222.
+
+    Host 127.0.0.1
+      ForwardAgent yes
+
+That is, once the above is added to your .ssh/config you should be able to ssh in with the follwoing and your ssh keys will be forwarded;
+
+    ssh USERNAME@127.0.0.1 -p 2222
+
 
 ## Resources
 http://vagrantup.com/

@@ -44,4 +44,18 @@ default_transport = error:postfix configured to not route email",
 	package { 'unzip':
 		ensure => installed
 	}
+
+	# reload ssh
+	exec {'reload ssh':
+		command => "/etc/init.d/ssh restart",
+		refreshonly => true,
+	}
+
+	augeas { 'ssh_allow_agent_forwarding':
+		context => '/files/etc/ssh/sshd_config',
+		changes => [
+			'set AllowAgentForwarding yes',
+		],
+		notify => Exec['reload ssh']
+	}
 }

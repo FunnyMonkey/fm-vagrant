@@ -8,7 +8,6 @@ VGUSER=`whoami`
 VGPASS=\!${VGUSER}\!
 VGSSHPUBKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
 VGSSHPUBKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
-VGSSHKEY=`cat ~/.ssh/id_rsa`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 VGGITCONFIG=`cat ~/.gitconfig`
@@ -87,10 +86,6 @@ vgrtsshpubkey=${vgrtsshpubkey:-$VGSSHPUBKEY}
 read -p "ssh pub key type [${VGSSHPUBKEYTYPE}]: " vgrtsshpubkeytype
 vgrtsshpubkeytype=${vgrtsshpubkeytype:-$VGSSHPUBKEYTYPE}
 
-read -s -p "ssh key (not echoed) [(using key in ~/.ssh/id_rsa)]: " vgrtsshkey
-vgrtsshkey=${vgrtsshkey:-$VGSSHKEY}
-echo
-
 read -p "gitconfig (not echoed) [(using ~/.gitconfig)]: " vgrtgitconfig
 vgrtgitconfig=${vgrtgitconfig:-$VGGITCONFIG}
 
@@ -116,7 +111,6 @@ node "${vgrthostname}.${vgrtdomain}" {
   add_ssh_key { ${vgrtuser}:
     pubkey => "${vgrtsshpubkey}",
     type => "${vgrtsshpubkeytype}",
-    key => "${vgrtsshkey}"
   }
 
   file {"/home/${vgrtuser}/.gitconfig":

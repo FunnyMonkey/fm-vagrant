@@ -54,7 +54,7 @@ EOF",
   }
 }
 
-define add_ssh_key( $pubkey, $type, $key ) {
+define add_ssh_key( $pubkey, $type) {
   $username       = $title
 
   ssh_authorized_key{ "${username}_${pubkey}":
@@ -63,23 +63,5 @@ define add_ssh_key( $pubkey, $type, $key ) {
     type    => $type,
     user    => $username,
     require => File["/home/$username/.ssh/authorized_keys"]
-  }
-
-  file {"/home/$username/.ssh/id_rsa.pub":
-    ensure  => present,
-    content => "$type $pubkey",
-    owner   => $username,
-    group   => $username,
-    mode    => 600,
-    require => File["/home/$username/.ssh"]
-  }
-
-  file {"/home/$username/.ssh/id_rsa":
-    ensure  => present,
-    content => $key,
-    owner   => $username,
-    group   => $username,
-    mode    => 600,
-    require => File["/home/$username/.ssh"]
   }
 }
