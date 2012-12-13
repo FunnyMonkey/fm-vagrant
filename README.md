@@ -52,6 +52,13 @@ That is, once the above is added to your .ssh/config you should be able to ssh i
     ssh USERNAME@127.0.0.1 -p 2222
 
 
+Assuming that this did not encounter any port collisions the port will be 222 however if there were port collisions you should see something like the following;
+
+    [default] Fixed port collision for 22 => 2222. Now on port 2200.
+
+Just adjust the port paramter to ssh to the corresponding replacement port.
+
+
 ## Resources
 http://vagrantup.com/
 http://puppetlabs.com/
