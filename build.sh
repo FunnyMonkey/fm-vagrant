@@ -11,11 +11,27 @@ VGSSHPUBKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
 VGGITCONFIG=`cat ~/.gitconfig`
+VGTYPE="drupal"
 
 vgrtuid=${VGUID}
 vgrtsshpubkey=${VGSSHPUBKEY}
 vgrtsshpubkeytype=${VGSSHPUBKEYTYPE}
 vgrtgitconfig=${VGGITCONFIG}
+
+# Check if a value exists in an array
+# @param $1 mixed  Needle
+# @param $2 array  Haystack
+# @return  Success (0) if value exists, Failure (1) otherwise
+# Usage: in_array "$needle" "${haystack[@]}"
+# See: http://fvue.nl/wiki/Bash:_Check_if_array_element_exists
+in_array() {
+    local hay needle=$1
+    shift
+    for hay; do
+        [[ $hay == $needle ]] && return 0
+    done
+    return 1
+}
 
 # Check to make sure we will not clobber an existing vm config.
 if [ -e Vagrantfile ]
@@ -78,6 +94,15 @@ read -s -p "password (not echoed) [${VGPASS}]: " vgrtpass
 vgrtpass=${vgrtpass:-$VGPASS}
 echo
 
+
+read -p "vm type (drupal|golang): [$VGTYPE}]: " vgrttype
+vgrttype=${vgrttype:-$VGTYPE}
+echo ${vgrttype}
+while [ "${vgrttype}" != "drupal" -a "${vgrttype}" != "golang" ]
+do
+  read -p "invalid input vm type (drupal|golang): " vgrttype
+done
+
 echo ""
 echo "Writing manifests/nodes.pp file"
 echo ""
@@ -89,8 +114,7 @@ chmod 600 manifests/nodes.pp
 cat > manifests/nodes.pp <<EOF
 node "${vgrthostname}.${vgrtdomain}" {
   include linux_common
-  include drupal
-  include devel
+  include ${vgrttype}
 
   add_user { ${vgrtuser}:
     email    => '${vgrtemail}',

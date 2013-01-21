@@ -2,7 +2,7 @@ class drupal {
 	include fm_mysql
 	include fm_apache_php
 	include fm_compass
-
+	include devel
 	# install drush, we use this method over the ubuntu package as that requires
 	# a drush self-update that prompts for a version. This method uses drush's
 	# official pear channel.
