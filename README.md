@@ -1,22 +1,22 @@
 ## Quickstart
 
-1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the name of the VirtualBox image if you load the VirtualBox GUI: 
-    
+1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the name of the VirtualBox image if you load the VirtualBox GUI:
+
     git clone git@github.com:FunnyMonkey/fm-vagrant.git PROJECTNAME
-2. cd into the directory the code is at: 
-    
+2. cd into the directory the code is at:
+
     cd PROJECTNAME
 3. run the build script the primary things this does is to let you pick an arbitrary hostname. This is really just a convenience so that when you login to the server
 the hostname is reflected. That is your prompt will be; USERNAME@HOSTNAME I find this helpful to avoid ambiguity. Additionaly the virtualbox name if you
 fire up the Virtual Box GUI will reflect the hostname you chose. This process also sets up manifets/nodes.pp to match the selected hostname.
-    
+
     ./build.sh
 4. run 'vagrant up' This creates the virtual machine and then kicks off puppet
 configuration that will get the rest of the steps.
-    
+
     vagrant up
 5. You can now begin working with your webserver. The webroot is setup at;
-    
+
     /var/www/HOSTNAME.DOMAIN
 
 where HOSTNAME and DOMAIN are what you provided in step 3.
@@ -28,6 +28,7 @@ make adjustments so that your machine has an outbound connection. This is typica
     Vagrant::Config.run do |config|
       config.vm.customize ["modifyvm", :id, "--memory", "2048"]
       config.vm.customize ["modifyvm", :id, "--cpus", "4"]
+      config.vm.forward_port 80, 8888
       config.vm.network :bridged, :bridge => 'eth0'
     end
 
