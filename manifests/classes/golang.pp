@@ -7,6 +7,11 @@ class golang {
 		ensure => installed,
 	}
 
-	#mgo
-	#pat
+  package { 'git':
+    ensure => installed,
+  }
+
+  package { 'bzr':
+    ensure => installed,
+  }
 }
