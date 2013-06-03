@@ -27,7 +27,7 @@ class devel {
 	file { '/etc/php5/apache2/conf.d/xhprof.ini':
 		ensure  => 'present',
 		content => 'extension=xhprof.so
-xhprof.output_dir=/var/tmp/xhprof',
+xhprof.output_dir=/tmp',
 		mode    =>  644,
 		require => [
 			Class['apache::mod::php'],
