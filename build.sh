@@ -92,6 +92,7 @@ node "${vgrthostname}.${vgrtdomain}" {
   include linux_common
   include drupal
   include devel
+  include solr
 
   add_user { ${vgrtuser}:
     email    => '${vgrtemail}',
