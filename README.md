@@ -21,6 +21,10 @@ configuration that will get the rest of the steps.
 
 where HOSTNAME and DOMAIN are what you provided in step 3.
 
+## Solr
+
+If your app needs solr, use the solr branch. This is separate because we just download the solr tarball (120MB) and then use the include jetty example app. You will need to replace the appropriate files in `/opt/local/solr/example/` with your applications required schema and conf files.
+
 ## Host specific settings
 This is well documented at http://vagrantup.com/v1/docs/vagrantfile.html but you should review the order precedence of the Vagrantfile. Generally speaking you will want to make a few host specific adjustments. Most importantly you will
 make adjustments so that your machine has an outbound connection. This is typically done with a bridged network interface, but you may need to adjust to NAT depending on your network configuration. Note that bridged mode will generally fail on large public networks such as those found in airports and hotels. Below is what I have in ~/.vagrant.d/Vagrantfile
