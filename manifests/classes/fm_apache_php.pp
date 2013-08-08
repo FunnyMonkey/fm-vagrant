@@ -72,7 +72,7 @@ class fm_apache_php {
 		context => '/files/etc/php5/apache2/php.ini/PHP',
 		changes => [
 			'set memory_limit 256M',
-			'set max_execution_time 60',
+			'set max_execution_time 120',
 			'set max_input_time 90',
 			'set error_reporting E_ALL | E_STRICT',
 			'set display_errors On',
@@ -80,7 +80,7 @@ class fm_apache_php {
 			'set html_errors On',
 			'set error_prepend_string <pre>',
 			'set error_apend_string </pre>',
-			'set post_max_size 34M',
+			'set post_max_size 64M',
 			'set upload_max_filesize 32M',
 		],
 		require => Package['php5'],
