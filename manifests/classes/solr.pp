@@ -3,10 +3,10 @@
 class solr {
 
   exec { "get-solr":
-    command => "wget -O /tmp/solr-4.3.1.tgz http://mirror.reverse.net/pub/apache/lucene/solr/4.3.1/solr-4.3.1.tgz &&
+    command => "wget -O /tmp/solr-4.4.0.tgz  http://apache.osuosl.org/lucene/solr/4.4.0/solr-4.4.0.tgz &&
       mkdir -p /opt/local &&
-      tar -C /opt/local -xvzf /tmp/solr-4.3.1.tgz &&
-      ln -s /opt/local/solr-4.3.1 /opt/local/solr",
+      tar -C /opt/local -xvzf /tmp/solr-4.4.0.tgz &&
+      ln -s /opt/local/solr-4.4.0 /opt/local/solr",
     require => Package['daemon', 'openjdk-6-jdk'],
     creates => "/opt/local/solr/example/start.jar"
   }
