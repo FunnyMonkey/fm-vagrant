@@ -16,8 +16,10 @@ skip-external-locking
 
 <% if bind_address %>
 bind-address    = <%= bind_address %>
-<% end %> 
+<% end %>
 
+
+innodb_buffer_pool_size = 128MB
 key_buffer         = 16M
 max_allowed_packet = 16M
 thread_stack       = 192K
