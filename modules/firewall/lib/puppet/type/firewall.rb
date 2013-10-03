@@ -15,6 +15,17 @@ Puppet::Type.newtype(:firewall) do
   @doc = <<-EOS
     This type provides the capability to manage firewall rules within
     puppet.
+
+    **Autorequires:**
+
+    If Puppet is managing the iptables or ip6tables chains specified in the
+    `chain` or `jump` parameters, the firewall resource will autorequire
+    those firewallchain resources.
+
+    If Puppet is managing the iptables or iptables-persistent packages, and
+    the provider is iptables or ip6tables, the firewall resource will
+    autorequire those packages to ensure that any required binaries are
+    installed.
   EOS
 
   feature :rate_limiting, "Rate limiting features."
@@ -27,6 +38,13 @@ Puppet::Type.newtype(:firewall) do
   feature :reject_type, "The ability to control reject messages"
   feature :log_level, "The ability to control the log level"
   feature :log_prefix, "The ability to add prefixes to log messages"
+  feature :mark, "Set the netfilter mark value associated with the packet"
+  feature :tcp_flags, "The ability to match on particular TCP flag settings"
+  feature :pkttype, "Match a packet type"
+  feature :socket, "Match open sockets"
+  feature :isfragment, "Match fragments"
+  feature :address_type, "The ability match on source or destination address type"
+  feature :iprange, "The ability match on source or destination IP range "
 
   # provider specific features
   feature :iptables, "The provider provides iptables features."
@@ -81,7 +99,7 @@ Puppet::Type.newtype(:firewall) do
   # Generic matching properties
   newproperty(:source) do
     desc <<-EOS
-      An array of source addresses. For example:
+      The source address. For example:
 
           source => '192.168.2.0/24'
 
@@ -89,13 +107,30 @@ Puppet::Type.newtype(:firewall) do
     EOS
 
     munge do |value|
-      @resource.host_to_ip(value)
+      begin
+        @resource.host_to_ip(value)
+      rescue Exception => e
+        self.fail("host_to_ip failed for #{value}, exception #{e}")
+      end
     end
+  end
+
+  # Source IP range
+  newproperty(:src_range, :required_features => :iprange) do
+    desc <<-EOS
+      The source IP range. For example:
+
+          src_range => '192.168.1.1-192.168.1.10'
+
+      The source IP range is must in 'IP1-IP2' format.
+    EOS
+
+    newvalues(/^((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)-((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)/)
   end
 
   newproperty(:destination) do
     desc <<-EOS
-      An array of destination addresses to match. For example:
+      The destination address to match. For example:
 
           destination => '192.168.1.0/24'
 
@@ -103,8 +138,25 @@ Puppet::Type.newtype(:firewall) do
     EOS
 
     munge do |value|
-      @resource.host_to_ip(value)
+      begin
+        @resource.host_to_ip(value)
+      rescue Exception => e
+        self.fail("host_to_ip failed for #{value}, exception #{e}")
+      end
     end
+  end
+
+  # Destination IP range
+  newproperty(:dst_range, :required_features => :iprange) do
+    desc <<-EOS
+      The destination IP range. For example:
+
+          dst_range => '192.168.1.1-192.168.1.10'
+
+      The destination IP range is must in 'IP1-IP2' format.
+    EOS
+
+    newvalues(/^((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)-((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)/)
   end
 
   newproperty(:sport, :array_matching => :all) do
@@ -124,7 +176,11 @@ Puppet::Type.newtype(:firewall) do
     EOS
 
     munge do |value|
-      @resource.string_to_port(value)
+      @resource.string_to_port(value, :proto)
+    end
+
+    def is_to_s(value)
+      should_to_s(value)
     end
 
     def should_to_s(value)
@@ -150,7 +206,11 @@ Puppet::Type.newtype(:firewall) do
     EOS
 
     munge do |value|
-      @resource.string_to_port(value)
+      @resource.string_to_port(value, :proto)
+    end
+
+    def is_to_s(value)
+      should_to_s(value)
     end
 
     def should_to_s(value)
@@ -176,7 +236,11 @@ Puppet::Type.newtype(:firewall) do
     EOS
 
     munge do |value|
-      @resource.string_to_port(value)
+      @resource.string_to_port(value, :proto)
+    end
+
+    def is_to_s(value)
+      should_to_s(value)
     end
 
     def should_to_s(value)
@@ -185,15 +249,83 @@ Puppet::Type.newtype(:firewall) do
     end
   end
 
+  newproperty(:dst_type, :required_features => :address_type) do
+    desc <<-EOS
+      The destination address type. For example:
+
+          dst_type => 'LOCAL'
+
+      Can be one of:
+
+      * UNSPEC - an unspecified address
+      * UNICAST - a unicast address
+      * LOCAL - a local address
+      * BROADCAST - a broadcast address
+      * ANYCAST - an anycast packet
+      * MULTICAST - a multicast address
+      * BLACKHOLE - a blackhole address
+      * UNREACHABLE - an unreachable address
+      * PROHIBIT - a prohibited address
+      * THROW - undocumented
+      * NAT - undocumented
+      * XRESOLVE - undocumented
+    EOS
+
+    newvalues(:UNSPEC, :UNICAST, :LOCAL, :BROADCAST, :ANYCAST, :MULTICAST,
+              :BLACKHOLE, :UNREACHABLE, :PROHIBIT, :THROW, :NAT, :XRESOLVE)
+  end
+
+  newproperty(:src_type, :required_features => :address_type) do
+    desc <<-EOS
+      The source address type. For example:
+
+          src_type => 'LOCAL'
+
+      Can be one of:
+
+      * UNSPEC - an unspecified address
+      * UNICAST - a unicast address
+      * LOCAL - a local address
+      * BROADCAST - a broadcast address
+      * ANYCAST - an anycast packet
+      * MULTICAST - a multicast address
+      * BLACKHOLE - a blackhole address
+      * UNREACHABLE - an unreachable address
+      * PROHIBIT - a prohibited address
+      * THROW - undocumented
+      * NAT - undocumented
+      * XRESOLVE - undocumented
+    EOS
+
+    newvalues(:UNSPEC, :UNICAST, :LOCAL, :BROADCAST, :ANYCAST, :MULTICAST,
+              :BLACKHOLE, :UNREACHABLE, :PROHIBIT, :THROW, :NAT, :XRESOLVE)
+  end
+
   newproperty(:proto) do
     desc <<-EOS
       The specific protocol to match for this rule. By default this is
       *tcp*.
     EOS
 
-    newvalues(:tcp, :udp, :icmp, :"ipv6-icmp", :esp, :ah, :vrrp, :igmp, :ipencap, :all)
+    newvalues(:tcp, :udp, :icmp, :"ipv6-icmp", :esp, :ah, :vrrp, :igmp, :ipencap, :ospf, :gre, :all)
     defaultto "tcp"
   end
+
+  # tcp-specific
+  newproperty(:tcp_flags, :required_features => :tcp_flags) do
+    desc <<-EOS
+      Match when the TCP flags are as specified.
+      Is a string with a list of comma-separated flag names for the mask,
+      then a space, then a comma-separated list of flags that should be set.
+      The flags are: SYN ACK FIN RST URG PSH ALL NONE
+      Note that you specify them in the order that iptables --list-rules
+      would list them to avoid having puppet think you changed the flags.
+      Example: FIN,SYN,RST,ACK SYN matches packets with the SYN bit set and the
+	       ACK,RST and FIN bits cleared.  Such packets are used to request
+               TCP  connection initiation.
+    EOS
+  end
+
 
   # Iptables specific
   newproperty(:chain, :required_features => :iptables) do
@@ -243,6 +375,7 @@ Puppet::Type.newtype(:firewall) do
       * LOG
       * MASQUERADE
       * REDIRECT
+      * MARK
 
       But any valid chain name is allowed.
 
@@ -264,7 +397,7 @@ Puppet::Type.newtype(:firewall) do
 
       if ["accept","reject","drop"].include?(value.downcase)
         raise ArgumentError, <<-EOS
-          Jump destination should not be one of ACCEPT, REJECT or DENY. Use
+          Jump destination should not be one of ACCEPT, REJECT or DROP. Use
           the action property instead.
         EOS
       end
@@ -277,14 +410,14 @@ Puppet::Type.newtype(:firewall) do
     desc <<-EOS
       Input interface to filter on.
     EOS
-    newvalues(/^[a-zA-Z0-9\-_]+$/)
+    newvalues(/^[a-zA-Z0-9\-\._\+]+$/)
   end
 
   newproperty(:outiface, :required_features => :interface_match) do
     desc <<-EOS
       Output interface to filter on.
     EOS
-    newvalues(/^[a-zA-Z0-9\-_]+$/)
+    newvalues(/^[a-zA-Z0-9\-\._\+]+$/)
   end
 
   # NAT specific properties
@@ -348,11 +481,32 @@ Puppet::Type.newtype(:firewall) do
   newproperty(:icmp, :required_features => :icmp_match) do
     desc <<-EOS
       When matching ICMP packets, this is the type of ICMP packet to match.
+
+      A value of "any" is not supported. To achieve this behaviour the
+      parameter should simply be omitted or undefined.
     EOS
+
+    validate do |value|
+      if value == "any"
+        raise ArgumentError,
+          "Value 'any' is not valid. This behaviour should be achieved " \
+          "by omitting or undefining the ICMP parameter."
+      end
+    end
 
     munge do |value|
       if value.kind_of?(String)
-        value = @resource.icmp_name_to_number(value)
+        # ICMP codes differ between IPv4 and IPv6.
+        case @resource[:provider]
+        when :iptables
+          protocol = 'inet'
+        when :ip6tables
+          protocol = 'inet6'
+        else
+          self.fail("cannot work out protocol family")
+        end
+
+        value = @resource.icmp_name_to_number(value, protocol)
       else
         value
       end
@@ -382,7 +536,11 @@ Puppet::Type.newtype(:firewall) do
     # States should always be sorted. This normalizes the resource states to
     # keep it consistent with the sorted result from iptables-save.
     def should=(values)
-      @should = super(values).sort
+      @should = super(values).sort_by {|sym| sym.to_s}
+    end
+
+    def is_to_s(value)
+      should_to_s(value)
     end
 
     def should_to_s(value)
@@ -408,7 +566,7 @@ Puppet::Type.newtype(:firewall) do
     newvalue(/^\d+$/)
   end
 
-  newproperty(:uid, :array_matching =>:all, :required_features => :owner) do
+  newproperty(:uid, :required_features => :owner) do
     desc <<-EOS
       UID or Username owner matching rule.  Accepts a string argument
       only, as iptables does not accept multiple uid in a single
@@ -416,7 +574,7 @@ Puppet::Type.newtype(:firewall) do
     EOS
   end
 
-  newproperty(:gid, :array_matching =>:all, :required_features => :owner) do
+  newproperty(:gid, :required_features => :owner) do
     desc <<-EOS
       GID or Group owner matching rule.  Accepts a string argument
       only, as iptables does not accept multiple gid in a single
@@ -424,10 +582,108 @@ Puppet::Type.newtype(:firewall) do
     EOS
   end
 
+  newproperty(:set_mark, :required_features => :mark) do
+    desc <<-EOS
+      Set the Netfilter mark value associated with the packet.  Accepts either of:
+      mark/mask or mark.  These will be converted to hex if they are not already.
+    EOS
+
+    munge do |value|
+      int_or_hex = '[a-fA-F0-9x]'
+      match = value.to_s.match("(#{int_or_hex}+)(/)?(#{int_or_hex}+)?")
+      mark = @resource.to_hex32(match[1])
+
+      # Values that can't be converted to hex.
+      # Or contain a trailing slash with no mask.
+      if mark.nil? or (mark and match[2] and match[3].nil?)
+        raise ArgumentError, "MARK value must be integer or hex between 0 and 0xffffffff"
+      end
+
+      # Old iptables does not support a mask. New iptables will expect one.
+      iptables_version = Facter.fact('iptables_version').value
+      mask_required = (iptables_version and Puppet::Util::Package.versioncmp(iptables_version, '1.4.1') >= 0)
+
+      if mask_required
+        if match[3].nil?
+          value = "#{mark}/0xffffffff"
+        else
+          mask = @resource.to_hex32(match[3])
+          if mask.nil?
+            raise ArgumentError, "MARK mask must be integer or hex between 0 and 0xffffffff"
+          end
+          value = "#{mark}/#{mask}"
+        end
+      else
+        unless match[3].nil?
+          raise ArgumentError, "iptables version #{iptables_version} does not support masks on MARK rules"
+        end
+        value = mark
+      end
+
+      value
+    end
+  end
+
+  newproperty(:pkttype, :required_features => :pkttype) do
+    desc <<-EOS
+      Sets the packet type to match.
+    EOS
+
+    newvalues(:unicast, :broadcast, :multicast)
+  end
+
+  newproperty(:isfragment, :required_features => :isfragment) do
+    desc <<-EOS
+      Set to true to match tcp fragments (requires type to be set to tcp)
+    EOS
+
+    newvalues(:true, :false)
+  end
+
+  newproperty(:socket, :required_features => :socket) do
+    desc <<-EOS
+      If true, matches if an open socket can be found by doing a coket lookup
+      on the packet.
+    EOS
+
+    newvalues(:true, :false)
+  end
+
   newparam(:line) do
     desc <<-EOS
       Read-only property for caching the rule line.
     EOS
+  end
+
+  autorequire(:firewallchain) do
+    reqs = []
+    protocol = nil
+
+    case value(:provider)
+    when :iptables
+      protocol = "IPv4"
+    when :ip6tables
+      protocol = "IPv6"
+    end
+
+    unless protocol.nil?
+      [value(:chain), value(:jump)].each do |chain|
+        reqs << "#{chain}:#{value(:table)}:#{protocol}" unless chain.nil?
+      end
+    end
+
+    reqs
+  end
+
+  # Classes would be a better abstraction, pending:
+  # http://projects.puppetlabs.com/issues/19001
+  autorequire(:package) do
+    case value(:provider)
+    when :iptables, :ip6tables
+      %w{iptables iptables-persistent}
+    else
+      []
+    end
   end
 
   validate do
@@ -488,6 +744,15 @@ Puppet::Type.newtype(:firewall) do
       end
     end
 
+    if value(:set_mark)
+      unless value(:jump).to_s  =~ /MARK/ &&
+             value(:chain).to_s =~ /PREROUTING|OUTPUT/ &&
+             value(:table).to_s =~ /mangle/
+        self.fail "Parameter set_mark only applies to " \
+          "the PREROUTING or OUTPUT chain of the mangle table and when jump => MARK"
+      end
+    end
+
     if value(:dport)
       unless value(:proto).to_s =~ /tcp|udp|sctp/
         self.fail "[%s] Parameter dport only applies to sctp, tcp and udp " \
@@ -526,6 +791,12 @@ Puppet::Type.newtype(:firewall) do
     if value(:jump).to_s == "MASQUERADE"
       unless value(:table).to_s =~ /nat/
         self.fail "Parameter jump => MASQUERADE only applies to table => nat"
+      end
+    end
+
+    if value(:log_prefix) || value(:log_level)
+      unless value(:jump).to_s == "LOG"
+        self.fail "Parameter log_prefix and log_level require jump => LOG"
       end
     end
 

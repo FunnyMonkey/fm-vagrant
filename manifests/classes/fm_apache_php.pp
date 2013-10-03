@@ -1,12 +1,14 @@
 class fm_apache_php {
 	include fm_mysql
-	include apache
+	class {'apache':
+		mpm_module => 'prefork'
+	}
 
 	class {'apache::mod::php':
 		require => Package["php5"]
 	}
 
-	apache::loadmodule{'rewrite':}
+	apache::mod { 'rewrite': }
 
 	package { php5:
 		ensure => installed,
