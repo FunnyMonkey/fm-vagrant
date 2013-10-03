@@ -10,7 +10,7 @@ VGSSHPUBKEY=`cut -d ' ' -f 2  ~/.ssh/id_rsa.pub`
 VGSSHPUBKEYTYPE=`cut -d ' ' -f 1 ~/.ssh/id_rsa.pub`
 VGEMAIL="${VGUSER}@${VGHOSTNAME}.${VGDOMAIN}"
 VGUID=5001
-VGGITCONFIG=`cat ~/.gitconfig`
+VGGITCONFIG=`sed -e 's/\"/\\\"/g' ~/.gitconfig`
 
 vgrtuid=${VGUID}
 vgrtsshpubkey=${VGSSHPUBKEY}
