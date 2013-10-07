@@ -61,12 +61,16 @@ Just adjust the port paramter to ssh to the corresponding replacement port, in t
 
 
 ## Resources
-[VagrantUp]http://vagrantup.com/
+[VagrantUp](http://vagrantup.com/)
 
-[PuppetLabs]http://puppetlabs.com/
+[PuppetLabs](http://puppetlabs.com/)
 
 ## Debugging
+
+### Hanging during boot
+
 If the vagrant box fails to boot and hangs at;
+
     "[default] Waiting for VM to boot. This can take a few minutes."
 
 This seems to trigger when adjusting puppet files if puppet starts but does not
@@ -78,16 +82,48 @@ timeout selection.
 
 If this happens you will need to get the machine hash stored in .vagrant it will
 be something like the following
+
     26424ca8-1f48-4ec1-9888-12b8f69f7c7e
 
 Once you have the machine hash then you can halt the machine.
+
     VBoxManage controlvm '26424ca8-1f48-4ec1-9888-12b8f69f7c7e' poweroff
 
 Then boot the machine with a GUI console
+
     VBoxManage startvm '26424ca8-1f48-4ec1-9888-12b8f69f7c7e'
 
 Once the machine is booted login, and then run;
+
     sudo update-grub
 
 Then you should be able to resume managing this via vagrant in the standard
 headless manner.
+
+### Failing to boot
+
+If the vagrant box fails to boot and exits after;
+
+    [default] Booting VM...
+    [default] Waiting for machine to boot. This may take a few minutes...
+    [default] Machine booted and ready!
+    Guest-specific operations were attempted on a machine that is not
+    ready for guest communication. This should not happen and a bug
+    should be reported.
+
+Then the vagrantbox has been booted, but not provisioned, and you will not have
+the proper configuration to test or develop. This seems to happen when running
+the CentOS vagrantbox from PuppetLabs and attempting to customize it with
+Vagrant configuration, such as:
+
+      config.vm.customize ["modifyvm", :id, "--memory", "2048"]
+      config.vm.customize ["modifyvm", :id, "--cpus", "4"]
+
+This however, does not mean that the vagrantbox will not work. In order to
+remedy this, you will simply need to reload the vagrantbox, and run the provisioners.
+The following command will do both:
+
+    vagrant reload --provision
+
+Then your virtual machine will be properly set up and provisioned, and you can access
+and manage it as described above.

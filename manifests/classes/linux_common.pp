@@ -1,19 +1,57 @@
 class linux_common {
-	exec { "apt-update":
-	    command => "/usr/bin/apt-get update"
-	}
-	# Require apt-update for every Package command
-	Exec["apt-update"] -> Package <| |>
 	Package["puppet"] -> Augeas <| |>
-	Package['libaugeas-ruby'] -> Augeas <| |>
 
-	# replace puppet and ruby so we can use augeas for file config
-	package { libaugeas-ruby:
-		ensure => installed,
-	}
+	case $::operatingsystem {
+		'Ubuntu': {
+			exec { 'apt-update':
+			    command => '/usr/bin/apt-get update'
+			}
+			# Require apt-update for every Package command
+			Exec['apt-update'] -> Package <| |>
+			Package['libaugeas-ruby'] -> Augeas <| |>
 
-	package { augeas-tools:
-		ensure => installed,
+			# replace puppet and ruby so we can use augeas for file config
+			package { 'libaugeas-ruby':
+				ensure => installed,
+			}
+
+			package { 'augeas-tools':
+				ensure => installed,
+			}
+
+			package { 'libxml-xpath-perl':
+				ensure => installed,
+			}
+		}
+		'CentOS': {
+			exec { 'yum-update':
+			    command => '/usr/bin/yum -y update'
+			}
+			# Require yum-update for every Yumrepo command
+			Yumrepo <| |> -> Exec['yum-update']
+			Package['ruby-augeas'] -> Augeas <| |>
+
+			include epel
+
+			# update puppet and ruby so we can use augeas for file config
+			package { 'ruby-augeas':
+				ensure  => installed,
+				require => Yumrepo['epel'],
+			}
+
+			package { 'augeas':
+				ensure => installed,
+			}
+
+			package { 'perl-XML-XPath':
+				ensure => installed,
+			}
+
+			# CentOS is more secure by default, kill that ish
+			class { 'firewall':
+				ensure => stopped,
+			}
+		}
 	}
 
 	package { puppet:
@@ -37,17 +75,16 @@ default_transport = error:postfix configured to not route email",
 		require => Package['postfix']
 	}
 
-	package { 'libxml-xpath-perl':
-		ensure => installed
-	}
-
 	package { 'unzip':
 		ensure => installed
 	}
 
 	# reload ssh
 	exec {'reload ssh':
-		command => "/etc/init.d/ssh restart",
+		command => $::operatingsystem ? {
+			'Ubuntu' => '/etc/init.d/ssh restart',
+			'CentOS' => '/etc/init.d/sshd restart',
+		},
 		refreshonly => true,
 	}
 

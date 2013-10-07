@@ -1,5 +1,6 @@
 #!/bin/bash
 # Vagrantfile variables
+VGOPSYS='ubuntu'
 VGHOSTNAME='vagrant'
 VGDOMAIN='local'
 
@@ -37,6 +38,29 @@ brackets, pressing enter will choose the default setting.
 ********************************************************************************
 "
 
+read -p "operating system (centos|ubuntu) [${VGOPSYS}]: " vgrtopsys
+vgrtopsys=${vgrtopsys:-$VGOPSYS}
+
+case "${vgrtopsys}" in
+    'centos' )
+        vgrtboxname='centos-64-x64'
+        vgrtbox_url='http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210.box'
+        vgrt_shell1='if (! /bin/rpm -q rpmforge-release > /dev/null); then /bin/rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm; fi'
+        vgrt_shell2='/usr/bin/yum install -y puppet ruby-augeas augeas rubygems'
+        ;;
+    'ubuntu' )
+        vgrtboxname='precise64'
+        vgrtbox_url='http://files.vagrantup.com/precise64.box'
+        vgrt_shell1='/usr/bin/apt-get update'
+        vgrt_shell2='/usr/bin/apt-get install -y puppet libaugeas-ruby augeas-tools rubygems'
+        ;;
+    * )
+        echo "Sorry, '${vgrtopsys}' is not a supported operating system."
+        echo 'Please hang up and try again.'
+        exit
+        ;;
+esac
+
 read -p "hostname [${VGHOSTNAME}]: " vgrthostname
 vgrthostname=${vgrthostname:-$VGHOSTNAME}
 
@@ -50,10 +74,10 @@ echo ""
 cat > Vagrantfile <<EOF
 Vagrant::Config.run do |config|
   config.vm.host_name = '${vgrthostname}'
-  config.vm.box = "precise64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
-  config.vm.provision :shell, :inline => "/usr/bin/apt-get update"
-  config.vm.provision :shell, :inline => "/usr/bin/apt-get install -y puppet libaugeas-ruby augeas-tools rubygems"
+  config.vm.box = "${vgrtboxname}"
+  config.vm.box_url = "${vgrtbox_url}"
+  config.vm.provision :shell, :inline => "${vgrt_shell1}"
+  config.vm.provision :shell, :inline => "${vgrt_shell2}"
   config.vm.provision :puppet, :module_path => "modules", :options => "--verbose" do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "site.pp"
@@ -92,6 +116,10 @@ node "${vgrthostname}.${vgrtdomain}" {
   include linux_common
   include drupal
   include devel
+
+  group { sudo:
+    ensure => present,
+  }
 
   add_user { ${vgrtuser}:
     email    => '${vgrtemail}',
