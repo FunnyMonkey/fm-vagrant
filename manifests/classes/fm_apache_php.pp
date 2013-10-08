@@ -35,6 +35,12 @@ class fm_apache_php {
 			$uploadprogress_ini_path = '/etc/php.d/uploadprogress.ini'
 			$apc_ini_path = '/etc/php.d/apc.ini'
 			$php_ini_path = '/etc/php.ini'
+
+			# CentOS has a separate php-xml package that's needed
+			package { "php-xml":
+				ensure => installed,
+				require => Package["${php_package}"]
+			}
 		}
 	}
 
