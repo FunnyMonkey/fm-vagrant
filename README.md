@@ -2,7 +2,7 @@
 
 1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the name of the VirtualBox image if you load the VirtualBox GUI:
 
-    git clone git@github.com:FunnyMonkey/fm-vagrant.git PROJECTNAME
+    git clone https://github.com/FunnyMonkey/fm-vagrant.git PROJECTNAME
 2. cd into the directory the code is at:
 
     cd PROJECTNAME
