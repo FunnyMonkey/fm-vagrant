@@ -3,7 +3,7 @@
 class solr {
 
   exec { "get-solr":
-    command => "wget -O /tmp/solr-4.4.0.tgz  http://apache.osuosl.org/lucene/solr/4.4.0/solr-4.4.0.tgz &&
+    command => "wget -O /tmp/solr-4.4.0.tgz http://archive.apache.org/dist/lucene/solr/4.4.0/solr-4.4.0.tgz &&
       mkdir -p /opt/local &&
       tar -C /opt/local -xvzf /tmp/solr-4.4.0.tgz &&
       ln -s /opt/local/solr-4.4.0 /opt/local/solr",
