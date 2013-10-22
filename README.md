@@ -33,8 +33,26 @@ make adjustments so that your machine has an outbound connection. This is typica
       config.vm.customize ["modifyvm", :id, "--memory", "2048"]
       config.vm.customize ["modifyvm", :id, "--cpus", "4"]
       config.vm.forward_port 80, 8888
-      config.vm.network :bridged, :bridge => 'eth0'
     end
+
+
+Alternatively for vagrant version 2.x the above configuration looks like
+
+
+    VAGRANTFILE_API_VERSION = "2"
+
+    Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+      config.vm.network "forwarded_port", guest: 80, host: 8888,
+        auto_correct: true
+    
+        config.vm.provider "virtualbox" do |v|
+          v.customize ["modifyvm", :id, "--memory", "2048"]
+          v.customize ["modifyvm", :id, "--cpus", "4"]
+        end
+    
+    end
+
+
 
 This sets an active bridged network interface up over eth0 (my active interface) and then also bumps the virtual machine memory to 2GB and the number of CPUs to 4. The virtual box documentaiton on VBoxManage contains more details on
 additional parameters that are available. Note that not all are configurable via vagrant.
