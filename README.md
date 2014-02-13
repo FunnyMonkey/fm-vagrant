@@ -54,8 +54,7 @@ Alternatively for vagrant version 2.x the above configuration looks like
 
 
 
-This sets an active bridged network interface up over eth0 (my active interface) and then also bumps the virtual machine memory to 2GB and the number of CPUs to 4. The virtual box documentaiton on VBoxManage contains more details on
-additional parameters that are available. Note that not all are configurable via vagrant.
+This sets the virtual machine memory to 2GB and the number of CPUs to 4. The virtual box documentaiton on VBoxManage contains more details on additional parameters that are available. Note that not all are configurable via vagrant.
 
 ### SSH Keys
 
