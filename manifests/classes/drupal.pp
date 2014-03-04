@@ -28,6 +28,8 @@ class drupal {
 		vhost_name      => '*',
 		port            => '80',
 		docroot         => "/var/www/${fqdn}/",
+		docroot_owner		=> "vagrant",
+		docroot_group		=> "vagrant",
     override        => 'All',
 		serveradmin     => "admin@${fqdn}",
 		serveraliases   => ["www.${fqdn}",],

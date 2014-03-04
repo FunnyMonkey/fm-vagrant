@@ -13,6 +13,7 @@ Exec { path => [
 }
 
 import "classes/*"
-import "nodes.pp"
 
-
+include linux_common
+include drupal
+include devel
