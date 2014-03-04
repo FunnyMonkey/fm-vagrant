@@ -1,29 +1,16 @@
 ## Quickstart
 
-1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the name of the VirtualBox image if you load the VirtualBox GUI:
+1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the hostname of your instance and the name of the VirtualBox image if you load the VirtualBox GUI:
 
     git clone https://github.com/FunnyMonkey/fm-vagrant.git PROJECTNAME
 2. cd into the directory the code is at:
 
     cd PROJECTNAME
-3. run the build script the primary things this does is to let you pick an arbitrary hostname. This is really just a convenience so that when you login to the server
-the hostname is reflected. That is your prompt will be; USERNAME@HOSTNAME I find this helpful to avoid ambiguity. Additionaly the virtualbox name if you
-fire up the Virtual Box GUI will reflect the hostname you chose. This process also sets up manifets/nodes.pp to match the selected hostname.
-
-    ./build.sh
-4. run 'vagrant up' This creates the virtual machine and then kicks off puppet
+3. run 'vagrant up' This creates the virtual machine and then kicks off puppet
 configuration that will get the rest of the steps.
 
     vagrant up
-5. You can now begin working with your webserver. The webroot is setup at;
-
-    /var/www/HOSTNAME.DOMAIN
-
-where HOSTNAME and DOMAIN are what you provided in step 3.
-
-## Solr
-
-If your app needs solr, use the solr branch. This is separate because we just download the solr tarball (120MB) and then use the include jetty example app. You will need to replace the appropriate files in `/opt/local/solr/example/` with your applications required schema and conf files.
+4. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/PROJECTNAME.local' and locally accessible via the 'www' directory. If this directory does not already exist (via a checkout or other modification you have done) then it will be created during `vagrant up`.
 
 ## Host specific settings
 This is well documented at http://vagrantup.com/v1/docs/vagrantfile.html but you should review the order precedence of the Vagrantfile. Generally speaking you will want to make a few host specific adjustments. Most importantly you will
@@ -44,12 +31,12 @@ Alternatively for vagrant version 2.x the above configuration looks like
     Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config.vm.network "forwarded_port", guest: 80, host: 8888,
         auto_correct: true
-    
+
         config.vm.provider "virtualbox" do |v|
           v.customize ["modifyvm", :id, "--memory", "2048"]
           v.customize ["modifyvm", :id, "--cpus", "4"]
         end
-    
+
     end
 
 
