@@ -35,9 +35,13 @@ class fm_apache_php {
 		ensure => installed,
 		require => Package["php5"]
 	}
+
+	# We require php5-imap to avoid having to create /etc/php5/conf.d since
+	# php5-imap does this, and we don't want to actually manage that directory.
+	# Workaround for; http://projects.puppetlabs.com/issues/86
 	package { php-apc:
 		ensure => installed,
-		require => Package["php5"]
+		require => Package["php5-imap"]
 	}
 	package { php5-cli:
 		ensure => installed,
