@@ -1,0 +1,4 @@
+# Empty hiera.yaml file
+# Avoids: "Warning: Config file /etc/puppet/hiera.yaml not found, using Hiera defaults"
+#
+# For app specific settings see http://docs.puppetlabs.com/hiera/1/
