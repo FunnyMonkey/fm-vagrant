@@ -101,7 +101,9 @@ class fm_apache_php {
 		ensure => "directory"
 	}
 
-	file {'/etc/apache2/httpd.conf':
+
+	apache::loadmodule{'vhost_alias':}
+	file {'/etc/apache2/mods-enabled/vhost_alias.conf':
 		ensure => "file",
 		replace => true,
 		content => '# get the server name from the Host: header
@@ -109,10 +111,10 @@ UseCanonicalName Off
 
 # this log format can be split per-virtual-host based on the first field
 LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
-CustomLog logs/access_log vcommon
+CustomLog /var/log/apache2/access_log vcommon
 
 # include the server name in the filenames used to satisfy requests
-VirtualDocumentRoot /www/hosts/%0/docs',
+VirtualDocumentRoot /var/www/%0',
 	}
 
 	# reload apache
