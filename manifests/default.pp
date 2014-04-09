@@ -15,5 +15,5 @@ Exec { path => [
 import "classes/*"
 
 include linux_common
-include drupal
+include fm_apache_php
 include devel
