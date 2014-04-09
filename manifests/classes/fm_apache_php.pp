@@ -86,4 +86,34 @@ class fm_apache_php {
 		require => Package['php5'],
 		notify => Exec['reload apache']
 	}
+
+		package { 'php-console-table':
+		ensure => installed,
+		require => Package['php-pear']
+	}
+
+	# create the main web directory parent
+	file { "/var/www":
+		ensure => "directory"
+	}
+
+	file {'/etc/apache2/httpd.conf':
+		ensure => "file",
+		replace => true,
+		content => '# get the server name from the Host: header
+UseCanonicalName Off
+
+# this log format can be split per-virtual-host based on the first field
+LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
+CustomLog logs/access_log vcommon
+
+# include the server name in the filenames used to satisfy requests
+VirtualDocumentRoot /www/hosts/%0/docs',
+	}
+
+	# reload apache
+	exec {'reload apache':
+		command => "/etc/init.d/apache2 reload",
+		refreshonly => true,
+	}
 }
