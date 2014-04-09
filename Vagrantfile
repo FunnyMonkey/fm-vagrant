@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.host_name = hostname
 
   config.vm.box = "FunnyMonkey Base (ubuntu server 13.10)"
-  config.vm.box_url = "file:///home/jeff/fm-ubuntu-13.10.box"
+  config.vm.box_url = ""
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
