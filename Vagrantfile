@@ -1,44 +1,61 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 # Default hostname to the directory name
 hostname = File.basename(File.dirname(__FILE__));
 
-Vagrant::Config.run do |config|
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # All Vagrant configuration is done here. The most common configuration
+  # options are documented and commented below. For a complete reference,
+  # please see the online documentation at vagrantup.com.
   config.vm.host_name = hostname
-  config.vm.box = "precise64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
-  # fix "read-only filesystem" errors in Mac OS X
-  # see: https://github.com/mitchellh/vagrant/issues/713
-  config.vm.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/v-root", "1"]
-  config.vm.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/server", "1"]
+  config.vm.box = "FunnyMonkey Base (ubuntu server 13.10)"
+  config.vm.box_url = "file:///home/jeff/fm-ubuntu-13.10.box"
 
-  # NFS mount needs hostonly net
-  # Docs: http://docs-v1.vagrantup.com/v1/docs/host_only_networking.html
-  config.vm.network :hostonly, "192.168.50.4"
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  config.vm.network "private_network", ip: "192.168.33.10"
 
-  # Mount webroot.
-  #
-  # NFS shared folders are several orders of magnitude faster, but they don't
-  # work on Windows hosts, they can require a little configuration, and they
-  # require that vagrant run some tasks as root. If you don't want to use NFS,
-  # try enabling it here.  For more information, see:
-  #
-  # http://docs-v1.vagrantup.com/v1/docs/nfs.html
-  #
-  # To disable NFS, set :nfs => false here.
-  config.vm.share_folder "www", "/var/www/%s.local" % [ hostname ], "./www", :nfs => true, :create => true
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
 
-  # Forward SSH key agent over the 'vagrant ssh' connection
+  # If true, then any SSH connections made will enable agent forwarding.
+  # Default value: false
   config.ssh.forward_agent = true
 
-  # Set our provisioners
-  config.vm.provision :shell, :inline => "/usr/bin/apt-get update"
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  config.vm.synced_folder "./www", "/var/www" % [ hostname ], type: "nfs"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  config.vm.provider "virtualbox" do |vb|
+    # Don't boot with headless mode
+    # vb.gui = true
+
+    #   # Use VBoxManage to customize the VM. For example to change memory:
+    # vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
+
+  # shell provisioners to do necessary prep for subsequnent puppet provisioning
   config.vm.provision :shell, :inline => "/usr/bin/apt-get install -y puppet libaugeas-ruby augeas-tools rubygems"
-  config.vm.provision :puppet, :module_path => "modules", :options => "--verbose" do |puppet|
+
+  # Enable provisioning with Puppet stand alone.  Puppet manifests
+  # are contained in a directory path relative to this Vagrantfile.
+  # You will need to create the manifests directory and a manifest in
+  # the file FunnyMonkey Base (ubuntu server 13.10).pp in the manifests_path directory.
+  #
+  config.vm.provision "puppet" do |puppet|
     puppet.manifests_path = "manifests"
     puppet.manifest_file  = "default.pp"
-    puppet.facter = {
-      "domain" => "local",
-      "fqdn" => "%s.local" % [ hostname ]
-    }
+    puppet.module_path = "modules"
+    puppet.options = "--verbose --hiera_config /vagrant/hiera.yaml"
   end
 end
