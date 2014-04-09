@@ -52,7 +52,7 @@ class fm_apache_php {
 	exec { 'pecl install uploadprogress':
 		command     => "/usr/bin/pecl install uploadprogress",
 		require => Package['php-pear'],
-		creates => '/usr/lib/php5/20090626/uploadprogress.so'
+		creates => '/usr/lib/php5/20121212/uploadprogress.so'
 	}
 
 	file { '/etc/php5/apache2/conf.d/uploadprogress.ini':

@@ -21,7 +21,7 @@ class devel {
 	exec { 'install xhprof':
 		command => '/usr/bin/pecl config-set preferred_state beta && /usr/bin/pecl install xhprof && /usr/bin/pecl config-set preferred_state stable',
 		require => Package['php5-common'],
-		creates => '/usr/lib/php5/20090626/xhprof.so'
+		creates => '/usr/lib/php5/20121212/xhprof.so'
 	}
 
 	file { '/etc/php5/apache2/conf.d/xhprof.ini':
