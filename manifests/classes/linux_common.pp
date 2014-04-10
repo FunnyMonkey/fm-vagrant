@@ -1,3 +1,4 @@
+# Basic setup used for all linux configurations
 class linux_common {
 	exec { "apt-update":
 	    command => "/usr/bin/apt-get update"
@@ -45,4 +46,16 @@ default_transport = error:postfix configured to not route email",
 		ensure => installed
 	}
 
+	package { screen:
+		ensure => installed,
+	}
+	package { mailutils:
+		ensure => installed,
+	}
+	package { vim:
+		ensure => installed,
+	}
+	package { git:
+		ensure => installed,
+	}
 }

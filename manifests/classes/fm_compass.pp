@@ -1,3 +1,4 @@
+# Libraries useful for compass development
 class fm_compass {
 	package { 'ruby-compass':
 		ensure => installed,

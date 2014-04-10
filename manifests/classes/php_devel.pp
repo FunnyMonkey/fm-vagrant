@@ -1,4 +1,4 @@
-class devel {
+class php_devel {
 	package { screen:
 		ensure => installed,
 	}
