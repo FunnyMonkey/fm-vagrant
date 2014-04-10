@@ -101,12 +101,6 @@ class fm_apache_php {
 		require => Package['php-pear']
 	}
 
-	# create the main web directory parent
-	file { "/var/www":
-		ensure => "directory"
-	}
-
-
 	apache::loadmodule{'vhost_alias':}
 	file {'/etc/apache2/mods-enabled/vhost_alias.conf':
 		ensure => "file",
@@ -119,7 +113,13 @@ LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
 CustomLog /var/log/apache2/access_log vcommon
 
 # include the server name in the filenames used to satisfy requests
-VirtualDocumentRoot /var/www/%0',
+VirtualDocumentRoot /srv/www/%0
+<Directory /srv/www/>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+</Directory>
+',
 	}
 
 	# reload apache
