@@ -12,6 +12,8 @@ configuration that will get the rest of the steps.
     vagrant up
 4. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
 
+5. Application level customizations should go into 'manifests/classes/app.pp'
+
 ## Detailed Setup (ubuntu)
 
 The current state of this project assumes that you have the latest version of VirtualBox and vagrant. Note that virtualbox is the Oracle version and not the open source edition. There appear to be issues between the virtualbox guest additions and newer versions of the linux kernel which are present in 13.10.
