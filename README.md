@@ -37,7 +37,8 @@ Get the latest [vagrant package](http://www.vagrantup.com/downloads.html)
 
 Note that using the package manager to install this will likely attempt to remove Oracle's virtualbox so instead use the following command (assuming your download was vagrant_1.5.2_x86_64.deb)
 
-  sudo dpkg -i vagrant_1.5.2_x86_64.deb
+
+    sudo dpkg -i vagrant_1.5.2_x86_64.deb
 
 ### Setup vagrant plugins
 
