@@ -11,7 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.host_name = hostname
 
   config.vm.box = "FunnyMonkey Base (ubuntu server 13.10)"
-  config.vm.box_url = ""
+  config.vm.box_url = "https://googledrive.com/host/0B0tNjg-35-SGWEE2R1M3RnJPd2M"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
