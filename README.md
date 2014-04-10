@@ -29,11 +29,11 @@ For ubuntu you can set these both up with the following instructions;
 
 ### Setup oracle PPA and install virtualbox
 
-Follow the [ppa setup instructions]https://www.virtualbox.org/wiki/Linux_Downloads
+Follow the [ppa setup instructions](https://www.virtualbox.org/wiki/Linux_Downloads)
 
 ### Install vagrant
 
-Get the latest [vagrant package]http://www.vagrantup.com/downloads.html
+Get the latest [vagrant package](http://www.vagrantup.com/downloads.html)
 
 Note that using the package manager to install this will likely attempt to remove Oracle's virtualbox so instead use the following command (assuming your download was vagrant_1.5.2_x86_64.deb)
 
@@ -107,7 +107,7 @@ Just adjust the port paramter to ssh to the corresponding replacement port, in t
 
 
 ## Resources
-[VagrantUp]http://vagrantup.com/
+[VagrantUp](http://vagrantup.com/)
 
-[PuppetLabs]http://puppetlabs.com/
+[PuppetLabs](http://puppetlabs.com/)
 
