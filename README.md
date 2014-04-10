@@ -10,7 +10,7 @@
 configuration that will get the rest of the steps.
 
     vagrant up
-4. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/PROJECTNAME.local' and locally accessible via the 'www' directory. If this directory does not already exist (via a checkout or other modification you have done) then it will be created during `vagrant up`.
+4. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
 
 ## Detailed Setup (ubuntu)
 
