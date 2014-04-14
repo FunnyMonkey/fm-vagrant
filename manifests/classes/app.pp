@@ -62,7 +62,7 @@ class app {
   mysql_grant { 'drupal@localhost/drupal.*':
     ensure      => 'present',
     options     => ['GRANT'],
-    privileges  => ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'INDEX', 'ALTER', 'CREATE TEMPORARY'],
+    privileges  => ['ALL'],
     table       => 'drupal.*',
     user        => 'drupal@localhost'
   }
