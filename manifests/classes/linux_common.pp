@@ -58,4 +58,7 @@ default_transport = error:postfix configured to not route email",
 	package { git:
 		ensure => installed,
 	}
+	package { htop:
+		ensure => installed,
+	}
 }
