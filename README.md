@@ -2,7 +2,9 @@
 
 1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the hostname of your instance and the name of the VirtualBox image if you load the VirtualBox GUI:
 
-    git clone https://github.com/FunnyMonkey/fm-vagrant.git PROJECTNAME
+    git clone --origin vagrant https://github.com/FunnyMonkey/fm-vagrant.git PROJECTNAME
+
+  Note that this sets the source repo alias as 'vagrant' rather than the typical 'origin', this is intentional to avoid an accidental attempted push to this repo rather than the application repo.
 2. cd into the directory the code is at:
 
     cd PROJECTNAME
