@@ -57,6 +57,38 @@ ARGS_TO_HASH = {
       :action => nil,
     },
   },
+  'source_destination_ipv4_no_cidr' => {
+    :line => '-A INPUT -s 1.1.1.1 -d 2.2.2.2 -m comment --comment "000 source destination ipv4 no cidr"',
+    :table => 'filter',
+    :params => {
+      :source => '1.1.1.1/32',
+      :destination => '2.2.2.2/32',
+    },
+  },
+  'source_destination_ipv6_no_cidr' => {
+    :line => '-A INPUT -s 2001:db8:85a3::8a2e:370:7334 -d 2001:db8:85a3::8a2e:370:7334 -m comment --comment "000 source destination ipv6 no cidr"',
+    :table => 'filter',
+    :params => {
+      :source => '2001:db8:85a3::8a2e:370:7334/128',
+      :destination => '2001:db8:85a3::8a2e:370:7334/128',
+    },
+  },
+  'source_destination_ipv4_netmask' => {
+    :line => '-A INPUT -s 1.1.1.0/255.255.255.0 -d 2.2.0.0/255.255.0.0 -m comment --comment "000 source destination ipv4 netmask"',
+    :table => 'filter',
+    :params => {
+      :source => '1.1.1.0/24',
+      :destination => '2.2.0.0/16',
+    },
+  },
+  'source_destination_ipv6_netmask' => {
+    :line => '-A INPUT -s 2001:db8:1234::/ffff:ffff:ffff:0000:0000:0000:0000:0000 -d 2001:db8:4321::/ffff:ffff:ffff:0000:0000:0000:0000:0000 -m comment --comment "000 source destination ipv6 netmask"',
+    :table => 'filter',
+    :params => {
+      :source => '2001:db8:1234::/48',
+      :destination => '2001:db8:4321::/48',
+    },
+  },
   'dport_range_1' => {
     :line => '-A INPUT -m multiport --dports 1:1024 -m comment --comment "000 allow foo"',
     :table => 'filter',
@@ -85,6 +117,51 @@ ARGS_TO_HASH = {
       :sport => ["15","512-1024"],
     },
   },
+  'dst_type_1' => {
+    :line => '-A INPUT -m addrtype --dst-type LOCAL',
+    :table => 'filter',
+    :params => {
+      :dst_type => 'LOCAL',
+    },
+  },
+  'src_type_1' => {
+    :line => '-A INPUT -m addrtype --src-type LOCAL',
+    :table => 'filter',
+    :params => {
+      :src_type => 'LOCAL',
+    },
+  },
+  'dst_range_1' => {
+    :line => '-A INPUT -m iprange --dst-range 10.0.0.2-10.0.0.20',
+    :table => 'filter',
+    :params => {
+      :dst_range => '10.0.0.2-10.0.0.20',
+    },
+  },
+  'src_range_1' => {
+    :line => '-A INPUT -m iprange --src-range 10.0.0.2-10.0.0.20',
+    :table => 'filter',
+    :params => {
+      :src_range => '10.0.0.2-10.0.0.20',
+    },
+  },
+  'tcp_flags_1' => {
+    :line => '-A INPUT -p tcp -m tcp --tcp-flags SYN,RST,ACK,FIN SYN -m comment --comment "000 initiation"',
+    :table => 'filter',
+    :compare_all => true,
+    :chain => 'INPUT',
+    :proto => 'tcp',
+    :params => {
+      :chain => "INPUT",
+      :ensure => :present,
+      :line => '-A INPUT -p tcp -m tcp --tcp-flags SYN,RST,ACK,FIN SYN -m comment --comment "000 initiation"',
+      :name => "000 initiation",
+      :proto => "tcp",
+      :provider => "iptables",
+      :table => "filter",
+      :tcp_flags => "SYN,RST,ACK,FIN SYN",
+    },
+  },
   'state_returns_sorted_values' => {
     :line => '-A INPUT -m state --state INVALID,RELATED,ESTABLISHED',
     :table => 'filter',
@@ -94,10 +171,10 @@ ARGS_TO_HASH = {
     },
   },
   'comment_string_character_validation' => {
-    :line => '-A INPUT -s 192.168.0.1 -m comment --comment "000 allow from 192.168.0.1, please"',
+    :line => '-A INPUT -s 192.168.0.1/32 -m comment --comment "000 allow from 192.168.0.1, please"',
     :table => 'filter',
     :params => {
-      :source => '192.168.0.1',
+      :source => '192.168.0.1/32',
     },
   },
   'log_level_debug' => {
@@ -118,12 +195,22 @@ ARGS_TO_HASH = {
       :jump => 'LOG'
     },
   },
-  'load_limit_module' => {
+  'load_limit_module_and_implicit_burst' => {
     :line => '-A INPUT -m multiport --dports 123 -m comment --comment "057 INPUT limit NTP" -m limit --limit 15/hour',
     :table => 'filter',
     :params => {
       :dport => ['123'],
-      :limit => '15/hour'
+      :limit => '15/hour',
+      :burst => '5'
+    },
+  },
+  'limit_with_explicit_burst' => {
+    :line => '-A INPUT -m multiport --dports 123 -m comment --comment "057 INPUT limit NTP" -m limit --limit 30/hour --limit-burst 10',
+    :table => 'filter',
+    :params => {
+      :dport => ['123'],
+      :limit => '30/hour',
+      :burst => '10'
     },
   },
   'proto_ipencap' => {
@@ -169,6 +256,139 @@ ARGS_TO_HASH = {
       :gid => 'root',
     },
   },
+  'mark_set-mark' => {
+    :line => '-t mangle -A PREROUTING -j MARK --set-xmark 0x3e8/0xffffffff',
+    :table => 'mangle',
+    :params => {
+      :jump     => 'MARK',
+      :chain    => 'PREROUTING',
+      :set_mark => '0x3e8/0xffffffff',
+    }
+  },
+  'iniface_1' => {
+    :line => '-A INPUT -i eth0 -m comment --comment "060 iniface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth0',
+    },
+  },
+  'iniface_with_vlans_1' => {
+    :line => '-A INPUT -i eth0.234 -m comment --comment "060 iniface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth0.234',
+    },
+  },
+  'iniface_with_plus_1' => {
+    :line => '-A INPUT -i eth+ -m comment --comment "060 iniface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth+',
+    },
+  },
+  'outiface_1' => {
+    :line => '-A OUTPUT -o eth0 -m comment --comment "060 outiface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth0',
+    },
+  },
+  'outiface_with_vlans_1' => {
+    :line => '-A OUTPUT -o eth0.234 -m comment --comment "060 outiface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth0.234',
+    },
+  },
+  'outiface_with_plus_1' => {
+    :line => '-A OUTPUT -o eth+ -m comment --comment "060 outiface" -j DROP',
+    :table => 'filter',
+    :params => {
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth+',
+    },
+  },
+  'pkttype multicast' => {
+    :line => '-A INPUT -m pkttype --pkt-type multicast -j ACCEPT',
+    :table => 'filter',
+    :params => {
+      :action => 'accept',
+      :pkttype => 'multicast',
+    },
+  },
+  'socket_option' => {
+    :line => '-A PREROUTING -m socket -j ACCEPT',
+    :table => 'mangle',
+    :params => {
+      :action => 'accept',
+      :chain => 'PREROUTING',
+      :socket => true,
+    },
+  },
+  'isfragment_option' => {
+    :line => '-A INPUT -f -m comment --comment "010 a-f comment with dashf" -j ACCEPT',
+    :table => 'filter',
+    :params => {
+      :name => '010 a-f comment with dashf',
+      :action => 'accept',
+      :isfragment => true,
+    },
+  },
+  'single_tcp_sport' => {
+    :line => '-A OUTPUT -s 10.94.100.46/32 -p tcp -m tcp --sport 20443 -j ACCEPT',
+    :table => 'mangle',
+    :params => {
+      :action => 'accept',
+      :chain => 'OUTPUT',
+      :source => "10.94.100.46/32",
+      :proto => "tcp",
+      :sport => ["20443"],
+    },
+  },
+  'single_udp_sport' => {
+    :line => '-A OUTPUT -s 10.94.100.46/32 -p udp -m udp --sport 20443 -j ACCEPT',
+    :table => 'mangle',
+    :params => {
+      :action => 'accept',
+      :chain => 'OUTPUT',
+      :source => "10.94.100.46/32",
+      :proto => "udp",
+      :sport => ["20443"],
+    },
+  },
+  'single_tcp_dport' => {
+    :line => '-A OUTPUT -s 10.94.100.46/32 -p tcp -m tcp --dport 20443 -j ACCEPT',
+    :table => 'mangle',
+    :params => {
+      :action => 'accept',
+      :chain => 'OUTPUT',
+      :source => "10.94.100.46/32",
+      :proto => "tcp",
+      :dport => ["20443"],
+    },
+  },
+  'single_udp_dport' => {
+    :line => '-A OUTPUT -s 10.94.100.46/32 -p udp -m udp --dport 20443 -j ACCEPT',
+    :table => 'mangle',
+    :params => {
+      :action => 'accept',
+      :chain => 'OUTPUT',
+      :source => "10.94.100.46/32",
+      :proto => "udp",
+      :dport => ["20443"],
+    },
+  },
 }
 
 # This hash is for testing converting a hash to an argument line.
@@ -211,6 +431,60 @@ HASH_TO_ARGS = {
     :args => ["-t", :filter, "-p", :tcp, "-m", "comment", "--comment",
       "100 no action"],
   },
+  'zero_prefixlen_ipv4' => {
+    :params => {
+      :name => '100 zero prefix length ipv4',
+      :table => 'filter',
+      :source => '0.0.0.0/0',
+      :destination => '0.0.0.0/0',
+    },
+    :args => ['-t', :filter, '-p', :tcp, '-m', 'comment', '--comment', '100 zero prefix length ipv4'],
+  },
+  'zero_prefixlen_ipv6' => {
+    :params => {
+      :name => '100 zero prefix length ipv6',
+      :table => 'filter',
+      :source => '::/0',
+      :destination => '::/0',
+    },
+    :args => ['-t', :filter, '-p', :tcp, '-m', 'comment', '--comment', '100 zero prefix length ipv6'],
+  },
+  'source_destination_ipv4_no_cidr' => {
+    :params => {
+      :name => '000 source destination ipv4 no cidr',
+      :table => 'filter',
+      :source => '1.1.1.1',
+      :destination => '2.2.2.2',
+    },
+    :args => ['-t', :filter, '-s', '1.1.1.1/32', '-d', '2.2.2.2/32', '-p', :tcp, '-m', 'comment', '--comment', '000 source destination ipv4 no cidr'],
+  },
+ 'source_destination_ipv6_no_cidr' => {
+    :params => {
+      :name => '000 source destination ipv6 no cidr',
+      :table => 'filter',
+      :source => '2001:db8:1234::',
+      :destination => '2001:db8:4321::',
+    },
+    :args => ['-t', :filter, '-s', '2001:db8:1234::/128', '-d', '2001:db8:4321::/128', '-p', :tcp, '-m', 'comment', '--comment', '000 source destination ipv6 no cidr'],
+  },
+  'source_destination_ipv4_netmask' => {
+    :params => {
+      :name => '000 source destination ipv4 netmask',
+      :table => 'filter',
+      :source => '1.1.1.0/255.255.255.0',
+      :destination => '2.2.0.0/255.255.0.0',
+    },
+    :args => ['-t', :filter, '-s', '1.1.1.0/24', '-d', '2.2.0.0/16', '-p', :tcp, '-m', 'comment', '--comment', '000 source destination ipv4 netmask'],
+  },
+ 'source_destination_ipv6_netmask' => {
+    :params => {
+      :name => '000 source destination ipv6 netmask',
+      :table => 'filter',
+      :source => '2001:db8:1234::/ffff:ffff:ffff:0000:0000:0000:0000:0000',
+      :destination => '2001:db8:4321::/ffff:ffff:ffff:0000:0000:0000:0000:0000',
+    },
+    :args => ['-t', :filter, '-s', '2001:db8:1234::/48', '-d', '2001:db8:4321::/48', '-p', :tcp, '-m', 'comment', '--comment', '000 source destination ipv6 netmask'],
+  },
   'sport_range_1' => {
     :params => {
       :name => "100 sport range",
@@ -242,6 +516,47 @@ HASH_TO_ARGS = {
       :table => "filter",
     },
     :args => ["-t", :filter, "-p", :tcp, "-m", "multiport", "--dports", "15,512:1024", "-m", "comment", "--comment", "100 sport range"],
+  },
+  'dst_type_1' => {
+    :params => {
+      :name => '000 dst_type',
+      :table => 'filter',
+      :dst_type => 'LOCAL',
+    },
+    :args => ['-t', :filter, '-p', :tcp, '-m', 'addrtype', '--dst-type', :LOCAL, '-m', 'comment', '--comment', '000 dst_type'],
+  },
+  'src_type_1' => {
+    :params => {
+      :name => '000 src_type',
+      :table => 'filter',
+      :src_type => 'LOCAL',
+    },
+    :args => ['-t', :filter, '-p', :tcp, '-m', 'addrtype', '--src-type', :LOCAL, '-m', 'comment', '--comment', '000 src_type'],
+  },
+  'dst_range_1' => {
+    :params => {
+      :name => '000 dst_range',
+      :table => 'filter',
+      :dst_range => '10.0.0.1-10.0.0.10',
+    },
+    :args => ['-t', :filter, '-m', 'iprange', '--dst-range', '10.0.0.1-10.0.0.10', '-p', :tcp, '-m', 'comment', '--comment', '000 dst_range'],
+  },
+  'src_range_1' => {
+    :params => {
+      :name => '000 src_range',
+      :table => 'filter',
+      :dst_range => '10.0.0.1-10.0.0.10',
+    },
+    :args => ['-t', :filter, '-m', 'iprange', '--dst-range', '10.0.0.1-10.0.0.10', '-p', :tcp, '-m', 'comment', '--comment', '000 src_range'],
+  },
+  'tcp_flags_1' => {
+    :params => {
+      :name => "000 initiation",
+      :tcp_flags => "SYN,RST,ACK,FIN SYN",
+      :table => "filter",
+    },
+
+    :args => ["-t", :filter, "-p", :tcp, "-m", "tcp", "--tcp-flags", "SYN,RST,ACK,FIN", "SYN", "-m", "comment", "--comment", "000 initiation",]
   },
   'states_set_from_array' => {
     :params => {
@@ -288,7 +603,7 @@ HASH_TO_ARGS = {
     },
     :args => ['-t', :filter, '-p', :tcp, '-m', 'comment', '--comment', '956 INPUT log-level', '-m', 'state', '--state', 'NEW', '-j', 'LOG', '--log-level', '4'],
   },
-  'load_limit_module' => {
+  'load_limit_module_and_implicit_burst' => {
     :params => {
       :name => '057 INPUT limit NTP',
       :table => 'filter',
@@ -296,6 +611,16 @@ HASH_TO_ARGS = {
       :limit => '15/hour'
     },
     :args => ['-t', :filter, '-p', :tcp, '-m', 'multiport', '--dports', '123', '-m', 'comment', '--comment', '057 INPUT limit NTP', '-m', 'limit', '--limit', '15/hour'],
+  },
+  'limit_with_explicit_burst' => {
+    :params => {
+      :name => '057 INPUT limit NTP',
+      :table => 'filter',
+      :dport => '123',
+      :limit => '30/hour',
+      :burst => '10'
+    },
+    :args => ['-t', :filter, '-p', :tcp, '-m', 'multiport', '--dports', '123', '-m', 'comment', '--comment', '057 INPUT limit NTP', '-m', 'limit', '--limit', '30/hour', '--limit-burst', '10'],
   },
   'proto_ipencap' => {
     :params => {
@@ -348,5 +673,145 @@ HASH_TO_ARGS = {
       :proto => 'all',
     },
     :args => ['-t', :mangle, '-p', :all, '-m', 'owner', '--gid-owner', 'root', '-m', 'comment', '--comment', '057 POSTROUTING gid root only', '-j', 'ACCEPT'],
+  },
+  'mark_set-mark_int' => {
+    :params => {
+      :name     => '058 set-mark 1000',
+      :table    => 'mangle',
+      :jump     => 'MARK',
+      :chain    => 'PREROUTING',
+      :set_mark => '1000',
+    },
+    :args => ['-t', :mangle, '-p', :tcp, '-m', 'comment', '--comment', '058 set-mark 1000', '-j', 'MARK', '--set-xmark', '0x3e8/0xffffffff'],
+  },
+  'mark_set-mark_hex' => {
+    :params => {
+      :name     => '058 set-mark 0x32',
+      :table    => 'mangle',
+      :jump     => 'MARK',
+      :chain    => 'PREROUTING',
+      :set_mark => '0x32',
+    },
+    :args => ['-t', :mangle, '-p', :tcp, '-m', 'comment', '--comment', '058 set-mark 0x32', '-j', 'MARK', '--set-xmark', '0x32/0xffffffff'],
+  },
+  'mark_set-mark_hex_with_hex_mask' => {
+    :params => {
+      :name     => '058 set-mark 0x32/0xffffffff',
+      :table    => 'mangle',
+      :jump     => 'MARK',
+      :chain    => 'PREROUTING',
+      :set_mark => '0x32/0xffffffff',
+    },
+    :args => ['-t', :mangle, '-p', :tcp, '-m', 'comment', '--comment', '058 set-mark 0x32/0xffffffff', '-j', 'MARK', '--set-xmark', '0x32/0xffffffff'],
+    },
+  'mark_set-mark_hex_with_mask' => {
+    :params => {
+      :name     => '058 set-mark 0x32/4',
+      :table    => 'mangle',
+      :jump     => 'MARK',
+      :chain    => 'PREROUTING',
+      :set_mark => '0x32/4',
+    },
+    :args => ['-t', :mangle, '-p', :tcp, '-m', 'comment', '--comment', '058 set-mark 0x32/4', '-j', 'MARK', '--set-xmark', '0x32/0x4'],
+    },
+    'iniface_1' => {
+    :params => {
+      :name => '060 iniface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth0',
+    },
+    :args => ["-t", :filter, "-i", "eth0", "-p", :tcp, "-m", "comment", "--comment", "060 iniface", "-j", "DROP"],
+  },
+  'iniface_with_vlans_1' => {
+    :params => {
+      :name => '060 iniface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth0.234',
+    },
+    :args => ["-t", :filter, "-i", "eth0.234", "-p", :tcp, "-m", "comment", "--comment", "060 iniface", "-j", "DROP"],
+  },
+  'iniface_with_plus_1' => {
+    :params => {
+      :name => '060 iniface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'INPUT',
+      :iniface => 'eth+',
+    },
+    :args => ["-t", :filter, "-i", "eth+", "-p", :tcp, "-m", "comment", "--comment", "060 iniface", "-j", "DROP"],
+  },
+  'outiface_1' => {
+    :params => {
+      :name => '060 outiface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth0',
+    },
+    :args => ["-t", :filter, "-o", "eth0", "-p", :tcp, "-m", "comment", "--comment", "060 outiface", "-j", "DROP"],
+  },
+  'outiface_with_vlans_1' => {
+    :params => {
+      :name => '060 outiface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth0.234',
+    },
+    :args => ["-t", :filter, "-o", "eth0.234", "-p", :tcp, "-m", "comment", "--comment", "060 outiface", "-j", "DROP"],
+  },
+  'outiface_with_plus_1' => {
+    :params => {
+      :name => '060 outiface',
+      :table => 'filter',
+      :action => 'drop',
+      :chain => 'OUTPUT',
+      :outiface => 'eth+',
+    },
+    :args => ["-t", :filter, "-o", "eth+", "-p", :tcp, "-m", "comment", "--comment", "060 outiface", "-j", "DROP"],
+  },
+  'pkttype multicast' => {
+    :params => {
+      :name => '062 pkttype multicast',
+      :table => "filter",
+      :action => 'accept',
+      :chain => 'INPUT',
+      :iniface => 'eth0',
+      :pkttype => 'multicast',
+    },
+    :args => ["-t", :filter, "-i", "eth0", "-p", :tcp, "-m", "pkttype", "--pkt-type", :multicast, "-m", "comment", "--comment", "062 pkttype multicast", "-j", "ACCEPT"],
+  },
+  'socket_option' => {
+    :params => {
+      :name => '050 socket option',
+      :table => 'mangle',
+      :action => 'accept',
+      :chain => 'PREROUTING',
+      :socket => true,
+    },
+    :args => ['-t', :mangle, '-p', :tcp, '-m', 'socket', '-m', 'comment', '--comment', '050 socket option', '-j', 'ACCEPT'],
+  },
+  'isfragment_option' => {
+    :params => {
+      :name => '050 isfragment option',
+      :table => 'filter',
+      :proto => :all,
+      :action => 'accept',
+      :isfragment => true,
+    },
+    :args => ['-t', :filter, '-p', :all, '-f', '-m', 'comment', '--comment', '050 isfragment option', '-j', 'ACCEPT'],
+  },
+  'isfragment_option not changing -f in comment' => {
+    :params => {
+      :name => '050 testcomment-with-fdashf',
+      :table => 'filter',
+      :proto => :all,
+      :action => 'accept',
+    },
+    :args => ['-t', :filter, '-p', :all, '-m', 'comment', '--comment', '050 testcomment-with-fdashf', '-j', 'ACCEPT'],
   },
 }

@@ -1,7 +1,9 @@
 class fm_compass {
-	package { 'ruby-compass':
-		ensure => installed,
-	}
+#	Why do we install both the package version
+#	and the gem version?
+#	package { 'ruby-compass':
+#		ensure => installed,
+#	}
 
 	package { 'rubygems':
 		ensure => installed,
@@ -32,8 +34,8 @@ class fm_compass {
 	}
 
 	package { 'zurb-foundation':
-    ensure   => 'installed',
-    provider => 'gem',
-    require => Package['rubygems']
+		ensure => 'installed',
+		provider => 'gem',
+		require => Package['rubygems']
 	}
 }

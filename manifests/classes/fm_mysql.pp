@@ -2,8 +2,8 @@ class fm_mysql {
 	include mysql
 
 	class { 'mysql::server':
-    config_hash => { 'root_password' => 'foo' },
-  }
+		config_hash => { 'root_password' => 'foo' },
+	}
 
   # install a database setting valid db permissions
 	# TODO: if we are going to be using this for building production VMs we will
@@ -12,6 +12,6 @@ class fm_mysql {
 		user     => 'drupal',
 		password => 'drupal',
 		host     => 'localhost',
-		grant    => ['all'],
+		grant    => ['ALL'],
 	}
 }
