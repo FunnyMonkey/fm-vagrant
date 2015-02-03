@@ -41,13 +41,6 @@ class fm_apache_php {
 		require => Package["php5"]
 	}
 
-	# We require php5-imap to avoid having to create /etc/php5/conf.d since
-	# php5-imap does this, and we don't want to actually manage that directory.
-	# Workaround for; http://projects.puppetlabs.com/issues/86
-	package { php-apc:
-		ensure => installed,
-		require => Package["php5-imap"]
-	}
 	package { php5-cli:
 		ensure => installed,
 		require => Package["php5"]
@@ -69,12 +62,6 @@ class fm_apache_php {
 		content => "extension=uploadprogress.so\n",
 		mode 		=> 644,
 		require => Class['apache::mod::php'],
-	}
-
-	file { '/etc/php5/conf.d/apc.ini':
-		ensure => "present",
-		content => "apc.shm_size=\"64M\"",
-		require => Package['php-apc'],
 	}
 
 	augeas { 'php_dev_config':
