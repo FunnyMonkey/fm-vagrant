@@ -12,37 +12,12 @@
 configuration that will get the rest of the steps.
 
     vagrant up
-4. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
 
-5. Application level customizations should go into 'manifests/classes/app.pp'
+4. Application level customizations should go into 'manifests/classes/app.pp'. You will need to edit this file before you can do much of anything. There are commented out examples for Drupal to get you started.
 
-## Detailed Setup (ubuntu)
-
-The current state of this project assumes that you have the latest version of VirtualBox and vagrant. Note that virtualbox is the Oracle version and not the open source edition. There appear to be issues between the virtualbox guest additions and newer versions of the linux kernel which are present in 13.10.
-
-Currently these are;
-
-  * VirtualBox 4.3.10 r93012
-  * vagrant: 1.5.2
-
-For ubuntu you can set these both up with the following instructions;
-
-### Remove existing virtualbox and vagrant;
-
-    sudo apt-get remove virtualbox vagrant
-
-### Setup oracle PPA and install virtualbox
-
-Follow the [ppa setup instructions](https://www.virtualbox.org/wiki/Linux_Downloads)
-
-### Install vagrant
-
-Get the latest [vagrant package](http://www.vagrantup.com/downloads.html)
-
-Note that using the package manager to install this will likely attempt to remove Oracle's virtualbox so instead use the following command (assuming your download was vagrant_1.5.2_x86_64.deb)
+5. If you enabled an apache server. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
 
 
-    sudo dpkg -i vagrant_1.5.2_x86_64.deb
 
 ### Setup vagrant plugins
 
@@ -91,26 +66,6 @@ make adjustments so that your machine has an outbound connection. This is typica
 
 
 This sets the virtual machine memory to 2GB and the number of CPUs to 4. The virtual box documentaiton on VBoxManage contains more details on additional parameters that are available. Note that not all are configurable via vagrant.
-
-### SSH Keys
-
-Rather than propogate private keys to the virtual machine, which is a *bad* *insecure* practice, You should set up [ssh agent forwarding]https://help.github.com/articles/using-ssh-agent-forwarding instead. The vagrant box that is deployed will allow ssh key forwarding from your client so.
-
-Adding the following to my .ssh/config works when ssh'ing via the port forward of 2222.
-
-    Host 127.0.0.1
-      ForwardAgent yes
-
-That is, once the above is added to your .ssh/config you should be able to ssh in with the follwoing and your ssh keys will be forwarded;
-
-    ssh USERNAME@127.0.0.1 -p 2222
-
-
-Assuming that this did not encounter any port collisions the port will be 2222 however if there were port collisions you should see something like the following;
-
-    [default] Fixed port collision for 22 => 2222. Now on port 2200.
-
-Just adjust the port paramter to ssh to the corresponding replacement port, in the above case 2200.
 
 
 ## Resources
