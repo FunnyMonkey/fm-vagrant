@@ -10,8 +10,9 @@ Vagrant.configure(2) do |config|
   # please see the online documentation at vagrantup.com.
   config.vm.host_name = hostname
 
-  config.vm.box = "FunnyMonkey Base (ubuntu server 13.10)"
-  config.vm.box_url = "https://googledrive.com/host/0B0tNjg-35-SGWEE2R1M3RnJPd2M"
+  config.vm.box = "FunnyMonkey Base (ubuntu server 14.04 LTS)"
+  config.vm.box_url = "https://googledrive.com/host/0B0tNjg-35-SGSzc2NDdZV3lSWDQ"
+
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -45,7 +46,7 @@ Vagrant.configure(2) do |config|
   end
 
   # shell provisioners to do necessary prep for subsequnent puppet provisioning
-  config.vm.provision :shell, :inline => "/usr/bin/apt-get install -y puppet libaugeas-ruby augeas-tools rubygems"
+  config.vm.provision :shell, :inline => "/usr/bin/apt-get install -y puppet libaugeas-ruby augeas-tools ruby"
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
