@@ -1,6 +1,6 @@
 ## Quickstart
 
-1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the hostname of your instance and the name of the VirtualBox image if you load the VirtualBox GUI:
+1. Grab this code replace PROJECTNAME with the name of your project, note that this will also be the hostname of your instance and the name of the VirtualBox image if you load the VirtualBox GUI (**NOTE**: that PROJECTNAME should only contain letters, numbers, hyphens or dots. It cannot start with a hyphen or dot.)
 
     git clone --origin vagrant https://github.com/FunnyMonkey/fm-vagrant.git PROJECTNAME
 
