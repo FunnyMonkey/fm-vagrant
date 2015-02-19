@@ -15,7 +15,7 @@ configuration that will get the rest of the steps.
 
 4. Application level customizations should go into 'manifests/classes/app.pp'. You will need to edit this file before you can do much of anything. There are commented out examples for Drupal to get you started.
 
-5. If you enabled an apache server. You can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
+5. If you enabled an apache server during customizations to 'manifests/classes/app.pp' in the previous step you can now begin working with your webserver. The webroot is NFS mounted to the virtual machine as '/var/www/192.168.33.10' and locally accessible via the 'www' directory. Visit http://192.168.33.10 for further details on web setup.
 
 
 
