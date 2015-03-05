@@ -28,7 +28,7 @@ class solr {
     owner => "root",
     group => "root",
     mode => 755,
-    source => "/tmp/vagrant-puppet/manifests/files/solr.init.d",
+    source => "file:///vagrant/manifests/files/solr.init.d",
     require => Exec['get-solr']
   }
 
