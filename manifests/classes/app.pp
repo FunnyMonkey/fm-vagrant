@@ -80,6 +80,9 @@ class app {
     require => Exec['install drush']
   }
 
+  # Uncomment next line for solr server
+  # include solr
+
   Remove this line to activate Drupal config */
   /*****************************************************************************
   ** END DRUPAL SETUP
