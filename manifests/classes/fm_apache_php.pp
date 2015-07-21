@@ -7,6 +7,7 @@ class fm_apache_php {
 	}
 
 	apache::loadmodule{'rewrite':}
+	apache::loadmodule{'ssl':}
 
 	package { php5:
 		ensure => installed,
@@ -88,8 +89,32 @@ class fm_apache_php {
 		require => Package['php-pear']
 	}
 
+	file { "/etc/ssl/localcerts/":
+	    ensure => "directory",
+	}
+
+	file { "/etc/ssl/localcerts/192.168.33.10.crt":
+    owner => "root",
+    group => "root",
+    ensure => "file",
+    mode => 755,
+    source => "file:///vagrant/manifests/files/localcerts/192.168.33.10.crt",
+    require => File["/etc/ssl/localcerts/"],
+  }
+
+	file { "/etc/ssl/localcerts/192.168.33.10.key":
+    owner => "root",
+    group => "root",
+    ensure => "file",
+    mode => 400,
+    source => "file:///vagrant/manifests/files/localcerts/192.168.33.10.key",
+    require => File["/etc/ssl/localcerts/"],
+  }
+
+
 	apache::loadmodule{'vhost_alias':}
 	file {'/etc/apache2/mods-enabled/vhost_alias.conf':
+		require => File["/etc/ssl/localcerts/192.168.33.10.crt", "/etc/ssl/localcerts/192.168.33.10.key"],
 		ensure => "file",
 		replace => true,
 		content => '# get the server name from the Host: header
@@ -100,12 +125,19 @@ LogFormat "%V %h %l %u %t \"%r\" %s %b" vcommon
 CustomLog /var/log/apache2/access_log vcommon
 
 # include the server name in the filenames used to satisfy requests
-VirtualDocumentRoot /srv/www/%0
+VirtualDocumentRoot /srv/www/%0/
 <Directory /srv/www/>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
 </Directory>
+
+<VirtualHost _default_:443>
+
+  SSLEngine on
+  SSLCertificateFile    /etc/ssl/localcerts/192.168.33.10.crt
+  SSLCertificateKeyFile /etc/ssl/localcerts/192.168.33.10.key
+</VirtualHost>
 ',
 	}
 
